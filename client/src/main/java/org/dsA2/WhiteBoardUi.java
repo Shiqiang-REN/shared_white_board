@@ -1,7 +1,6 @@
 package org.dsA2;
 
 import javax.swing.*;
-import javax.swing.border.TitledBorder;
 import java.awt.*;
 import java.awt.event.*;
 
@@ -45,38 +44,6 @@ public class WhiteBoardUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
-
-            }
-        });
-        whiteBoardPanel.addMouseMotionListener(new MouseMotionAdapter() {
-            @Override
-            public int hashCode() {
-                return super.hashCode();
-            }
-
-            @Override
-            public boolean equals(Object obj) {
-                return super.equals(obj);
-            }
-
-            @Override
-            protected Object clone() throws CloneNotSupportedException {
-                return super.clone();
-            }
-
-            @Override
-            public String toString() {
-                return super.toString();
-            }
-
-            @Override
-            public void mouseDragged(MouseEvent e) {
-                super.mouseDragged(e);
-            }
-
-            @Override
-            public void mouseMoved(MouseEvent e) {
-                super.mouseMoved(e);
             }
         });
 
@@ -85,6 +52,27 @@ public class WhiteBoardUi {
             public void actionPerformed(ActionEvent e) {
                 selectedColor = JColorChooser.showDialog(panelMain, "Choose Color", Color.black);
                 System.out.println(selectedColor);
+            }
+        });
+
+        whiteBoardPanel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mousePressed(MouseEvent e) {
+                super.mousePressed(e);
+                //System.out.println(e.getX()+"---"+e.getY());
+                //System.out.println(selectedColor);
+                //createUIComponents("Line");
+                ((Painting)whiteBoardPanel).setPainting(e.getX());
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                super.mouseReleased(e);
+            }
+
+            @Override
+            public void mouseDragged(MouseEvent e) {
+                super.mouseDragged(e);
             }
         });
     }
@@ -132,6 +120,11 @@ public class WhiteBoardUi {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
-        whiteBoardPanel = new MyWhiteBoard();
+        whiteBoardPanel = new Painting();
     }
+
+
+
+
+
 }
