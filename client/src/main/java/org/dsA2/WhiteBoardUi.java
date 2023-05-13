@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+
 /**
  * ClassName: WhiteBoardUi
  * Package: org.dsA2
@@ -35,9 +36,10 @@ public class WhiteBoardUi {
     private JComboBox filesComboBox;
     private JTextArea textArea1;
     private JScrollPane userPane;
+    private JButton penButton;
     private JFrame frame;
-    private Color selectedColor = Color.BLACK;
-    private String toolType = "draw";
+    private String selectedColor;
+    private String toolType = "pen";
     private int startX;
     private int startY;
     private int endX;
@@ -45,6 +47,13 @@ public class WhiteBoardUi {
 
     public WhiteBoardUi(String username, String role) {
         initBoard();
+        penButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setCursor(new Cursor(Cursor.MOVE_CURSOR));
+                toolType = "pen";
+            }
+        });
         lineButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -52,12 +61,39 @@ public class WhiteBoardUi {
                 toolType = "line";
             }
         });
-
+        circleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+                toolType = "circle";
+            }
+        });
+        ovalButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+                toolType = "oval";
+            }
+        });
+        rectangleButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+                toolType = "rectangle";
+            }
+        });
+        textButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                frame.setCursor(new Cursor(Cursor.TEXT_CURSOR));
+                toolType = "text";
+            }
+        });
         ColorButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                selectedColor = JColorChooser.showDialog(panelMain, "Choose Color", Color.black);
-                System.out.println(selectedColor);
+                Color color = JColorChooser.showDialog(panelMain, "Choose Color", Color.black);
+                selectedColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
             }
         });
 
@@ -67,7 +103,7 @@ public class WhiteBoardUi {
                 super.mousePressed(e);
                 startX= e.getX();
                 startY= e.getY();
-                //System.out.println(e.getX()+"---"+e.getY());
+                System.out.println(e.getX()+"---"+e.getY());
                 //System.out.println(selectedColor);
                 //createUIComponents("Line");
             }
@@ -77,19 +113,97 @@ public class WhiteBoardUi {
                 super.mouseReleased(e);
                 endX = e.getX();
                 endY = e.getY();
-                ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
-                        toolType,
-                        String.valueOf(selectedColor),
-                        String.valueOf(startX),
-                        String.valueOf(startY),
-                        String.valueOf(endX),
-                        String.valueOf(endY)});
+                switch (toolType) {
+                    case "line":
+                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                                toolType,
+                                selectedColor,
+                                String.valueOf(startX),
+                                String.valueOf(startY),
+                                String.valueOf(endX),
+                                String.valueOf(endY)});
+                        break;
+                    case "circle":
+                        double diameter = Math.sqrt((endX - startX)*(endX - startX)+(endY - startY)*(endY - startY));
+                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                                toolType,
+                                selectedColor,
+                                String.valueOf(startX-(int)diameter),
+                                String.valueOf(startY-(int)diameter),
+                                String.valueOf(2*(int)diameter),
+                                String.valueOf(2*(int)diameter)});
+                        break;
+                    case "oval":
+                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                                toolType,
+                                selectedColor,
+                                String.valueOf(startX),
+                                String.valueOf(startY),
+                                String.valueOf(Math.abs(endX-startX)),
+                                String.valueOf(Math.abs(endY- startY))});
+                        //Math.abs((startY- startX)/2)
+                        break;
+                    case "rectangle":
+                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                                toolType,
+                                selectedColor,
+                                String.valueOf(startX),
+                                String.valueOf(startY),
+                                String.valueOf(Math.abs(endX-startX)),
+                                String.valueOf(Math.abs(endY- startY))
+                                });
+                        break;
+                    case "text":
+                        String text = JOptionPane.showInputDialog("Please input the text!");
+                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                                toolType,
+                                selectedColor,
+                                String.valueOf(startX),
+                                String.valueOf(startY), text});
+                        break;
+                    default:
+                        // 默认代码块
+                        break;
+                }
             }
+//            @Override
+//            public void mouseDragged(MouseEvent e) {
+//                super.mouseDragged(e);
+//                endX = e.getX();
+//                endY = e.getY();
+//                System.out.println(startX);
+//
+//                ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+//                        toolType,
+//                        selectedColor,
+//                        String.valueOf(startX),
+//                        String.valueOf(startY),
+//                        String.valueOf(endX),
+//                        String.valueOf(endY)});
+//            }
+        });
+
+        whiteBoardPanel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
+                if(toolType .equals("pen")){
+                    int prevX = startX;
+                    int prevY = startY;
+                    startX = e.getX();
+                    startY = e.getY();
+                    ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                            toolType,
+                            selectedColor,
+                            String.valueOf(prevX),
+                            String.valueOf(prevY),
+                            String.valueOf(startX),
+                            String.valueOf(startY)});
+                }
+
             }
         });
+
     }
 
     public void initBoard() {
@@ -110,9 +224,10 @@ public class WhiteBoardUi {
                 }
             }
         });
-        removeUser.setVisible(false);
-        filesComboBox.setVisible(false);
+        //removeUser.setVisible(false);
+        //filesComboBox.setVisible(false);
 
+        selectedColor = "#000000";
 
         DefaultListModel<String> model = new DefaultListModel<>();
         model.addElement("元素1");

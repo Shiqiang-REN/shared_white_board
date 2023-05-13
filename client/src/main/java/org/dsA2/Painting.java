@@ -18,31 +18,41 @@ import java.util.List;
 public class Painting extends JPanel {
 
     List<String[]> shapes = new ArrayList<>();
-    private Color backgroundColor;
+    private Graphics graphics;
+
+
+
     @Override
     protected void paintComponent(Graphics g) {
-
         super.paintComponent(g);
+        graphics = g;
 
         for (String[] shape : shapes) {
-            g.drawLine(Integer.parseInt(shape[2]),
-                    Integer.parseInt(shape[3]),
-                    Integer.parseInt(shape[4]),
-                    Integer.parseInt(shape[5])
-            );
-//            for (String hobby : hobbyArray) {
-//                System.out.print(hobby + " ");
-//            }
+            switch (shape[0]) {
+                case "line":
+                    drawLine(shape[1],shape[2],shape[3],shape[4],shape[5]);
+                    break;
+                case "circle":
+                    drawCircle(shape[1],shape[2],shape[3],shape[4],shape[5]);
+                    break;
+                case "oval":
+                    drawOval(shape[1],shape[2],shape[3],shape[4],shape[5]);
+                    break;
+                case "rectangle":
+                    drawRectangle(shape[1],shape[2],shape[3],shape[4],shape[5]);
+                    break;
+                case "text":
+                    drawString(shape[1],shape[2],shape[3],shape[4]);
+                    break;
+                default:
+                    drawLine(shape[1],shape[2],shape[3],shape[4],shape[5]);
+                    break;
+            }
+
             //System.out.println(hobbyArray[0]);
             //String jsonStr = JSON.toJSONString(hobbies);
             //List<String[]> hobbies = JSON.parseObject(jsonStr, new TypeReference<List<String[]>>(){});
         }
-
-
-        System.out.println("shape");
-        g.setColor(Color.BLUE);
-        g.drawLine(10,15,20,30);
-        //g.fillOval(10, 10, 100, 100);
     }
 
     public void addPaintingShape(String[] s) {
@@ -50,4 +60,55 @@ public class Painting extends JPanel {
         System.out.println(Arrays.toString(s));
         repaint();
     }
+
+
+    public void drawLine(String color, String startX, String startY, String endX, String endY){
+        Color newColor = Color.decode(color);
+        graphics.setColor(newColor);
+        graphics.drawLine(Integer.parseInt(startX),
+                Integer.parseInt(startY),
+                Integer.parseInt(endX),
+                Integer.parseInt(endY)
+        );
+    }
+
+    public void drawCircle(String color, String startX, String startY, String endX, String endY){
+        Color newColor = Color.decode(color);
+        graphics.setColor(newColor);
+        graphics.drawOval(Integer.parseInt(startX),
+                Integer.parseInt(startY),
+                Integer.parseInt(endX),
+                Integer.parseInt(endY)
+        );
+    }
+
+    public void drawOval(String color, String startX, String startY, String endX, String endY){
+        Color newColor = Color.decode(color);
+        graphics.setColor(newColor);
+        graphics.drawOval(Integer.parseInt(startX),
+                Integer.parseInt(startY),
+                Integer.parseInt(endX),
+                Integer.parseInt(endY)
+        );
+    }
+
+    public void drawRectangle(String color, String startX, String startY, String endX, String endY){
+        Color newColor = Color.decode(color);
+        graphics.setColor(newColor);
+        graphics.drawRect(Integer.parseInt(startX),
+                Integer.parseInt(startY),
+                Integer.parseInt(endX),
+                Integer.parseInt(endY)
+        );
+    }
+    public void drawString(String color, String startX, String startY, String text){
+        Color newColor = Color.decode(color);
+        Font font = new Font("Arial", Font.PLAIN, 20);
+        graphics.setFont(font);
+        graphics.setColor(newColor);
+        graphics.drawString(text,
+                Integer.parseInt(startX),
+                Integer.parseInt(startY));
+    }
+
 }
