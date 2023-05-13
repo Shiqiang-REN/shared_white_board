@@ -162,25 +162,9 @@ public class WhiteBoardUi {
                                 String.valueOf(startY), text});
                         break;
                     default:
-                        // 默认代码块
                         break;
                 }
             }
-//            @Override
-//            public void mouseDragged(MouseEvent e) {
-//                super.mouseDragged(e);
-//                endX = e.getX();
-//                endY = e.getY();
-//                System.out.println(startX);
-//
-//                ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
-//                        toolType,
-//                        selectedColor,
-//                        String.valueOf(startX),
-//                        String.valueOf(startY),
-//                        String.valueOf(endX),
-//                        String.valueOf(endY)});
-//            }
         });
 
         whiteBoardPanel.addMouseMotionListener(new MouseMotionAdapter() {
@@ -204,6 +188,29 @@ public class WhiteBoardUi {
             }
         });
 
+        filesComboBox.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String selectedOption = (String) filesComboBox.getSelectedItem();
+                switch (selectedOption) {
+                    case "New":
+                        ((Painting)whiteBoardPanel).clearPainting();
+                        break;
+                    case "Open":
+
+                        break;
+                    case "Save":
+
+                        break;
+                    case "Save As":
+
+                        break;
+                    default:
+                        break;
+                }
+                filesComboBox.setSelectedItem("FILE");
+            }
+        });
     }
 
     public void initBoard() {

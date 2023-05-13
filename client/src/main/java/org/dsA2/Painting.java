@@ -29,24 +29,11 @@ public class Painting extends JPanel {
 
         for (String[] shape : shapes) {
             switch (shape[0]) {
-                case "line":
-                    drawLine(shape[1],shape[2],shape[3],shape[4],shape[5]);
-                    break;
-                case "circle":
-                    drawCircle(shape[1],shape[2],shape[3],shape[4],shape[5]);
-                    break;
-                case "oval":
-                    drawOval(shape[1],shape[2],shape[3],shape[4],shape[5]);
-                    break;
-                case "rectangle":
-                    drawRectangle(shape[1],shape[2],shape[3],shape[4],shape[5]);
-                    break;
-                case "text":
-                    drawString(shape[1],shape[2],shape[3],shape[4]);
-                    break;
-                default:
-                    drawLine(shape[1],shape[2],shape[3],shape[4],shape[5]);
-                    break;
+                case "line" -> drawLine(shape[1], shape[2], shape[3], shape[4], shape[5]);
+                case "circle" -> drawCircle(shape[1], shape[2], shape[3], shape[4], shape[5]);
+                case "oval" -> drawOval(shape[1], shape[2], shape[3], shape[4], shape[5]);
+                case "rectangle" -> drawRectangle(shape[1], shape[2], shape[3], shape[4], shape[5]);
+                case "text" -> drawString(shape[1], shape[2], shape[3], shape[4]);
             }
 
             //System.out.println(hobbyArray[0]);
@@ -109,6 +96,11 @@ public class Painting extends JPanel {
         graphics.drawString(text,
                 Integer.parseInt(startX),
                 Integer.parseInt(startY));
+    }
+
+    public void clearPainting (){
+        shapes = new ArrayList<>();
+        repaint();
     }
 
 }
