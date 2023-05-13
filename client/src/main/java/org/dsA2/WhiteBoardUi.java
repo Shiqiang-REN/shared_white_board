@@ -1,8 +1,10 @@
 package org.dsA2;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 
 /**
@@ -197,15 +199,21 @@ public class WhiteBoardUi {
                         ((Painting)whiteBoardPanel).clearPainting();
                         break;
                     case "Open":
-
+                        filePanel("Open");
                         break;
                     case "Save":
-
+                        filePanel("Save");
                         break;
                     case "Save As":
-
+                        filePanel("Save AS");
                         break;
-                    default:
+                    case "Close":
+                        if (JOptionPane.showConfirmDialog(frame,
+                                "Are you sure you want to close?", "Close Window?",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                            System.exit(0);
+                        }
                         break;
                 }
                 filesComboBox.setSelectedItem("FILE");
@@ -260,5 +268,24 @@ public class WhiteBoardUi {
         whiteBoardPanel = new Painting();
     }
 
+    public File filePanel (String title){
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setDialogTitle(title);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
 
+        fileChooser.setFileFilter(filter);
+
+        int fileSelection1 = 0;
+        switch (title) {
+            case "Save" -> fileSelection1 = fileChooser.showSaveDialog(panelMain);
+            case "Open" -> fileSelection1 = fileChooser.showOpenDialog(panelMain);
+        }
+        if (fileSelection1 == JFileChooser.APPROVE_OPTION) {
+            System.out.println(11);
+            return fileChooser.getSelectedFile();
+
+        }
+        return null;
+    }
 }
