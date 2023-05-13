@@ -36,7 +36,12 @@ public class WhiteBoardUi {
     private JTextArea textArea1;
     private JScrollPane userPane;
     private JFrame frame;
-    private Color selectedColor;
+    private Color selectedColor = Color.BLACK;
+    private String toolType = "draw";
+    private int startX;
+    private int startY;
+    private int endX;
+    private int endY;
 
     public WhiteBoardUi(String username, String role) {
         initBoard();
@@ -44,6 +49,7 @@ public class WhiteBoardUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 frame.setCursor(new Cursor(Cursor.CROSSHAIR_CURSOR));
+                toolType = "line";
             }
         });
 
@@ -59,17 +65,26 @@ public class WhiteBoardUi {
             @Override
             public void mousePressed(MouseEvent e) {
                 super.mousePressed(e);
+                startX= e.getX();
+                startY= e.getY();
                 //System.out.println(e.getX()+"---"+e.getY());
                 //System.out.println(selectedColor);
                 //createUIComponents("Line");
-                ((Painting)whiteBoardPanel).setPainting(e.getX());
             }
 
             @Override
             public void mouseReleased(MouseEvent e) {
                 super.mouseReleased(e);
+                endX = e.getX();
+                endY = e.getY();
+                ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                        toolType,
+                        String.valueOf(selectedColor),
+                        String.valueOf(startX),
+                        String.valueOf(startY),
+                        String.valueOf(endX),
+                        String.valueOf(endY)});
             }
-
             @Override
             public void mouseDragged(MouseEvent e) {
                 super.mouseDragged(e);
@@ -122,9 +137,6 @@ public class WhiteBoardUi {
         // TODO: place custom component creation code here
         whiteBoardPanel = new Painting();
     }
-
-
-
 
 
 }
