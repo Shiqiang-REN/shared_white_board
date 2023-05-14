@@ -16,7 +16,6 @@ import java.util.List;
 /**
  * ClassName: WhiteBoardUi
  * Package: org.dsA2
- * Description:
  *
  * @Author Shiqiang Ren
  * @Create 12/5/2023 12:33

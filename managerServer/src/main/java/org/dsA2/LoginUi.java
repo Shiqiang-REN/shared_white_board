@@ -3,9 +3,8 @@ package org.dsA2;
 import javax.swing.*;
 
 /**
- * ClassName: ClientUi
+ * ClassName: LoginUi
  * Package: org.dsA2
- * Description:
  *
  * @Author Shiqiang Ren
  * @Create 12/5/2023 12:32

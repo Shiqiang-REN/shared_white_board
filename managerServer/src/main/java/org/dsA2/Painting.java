@@ -2,15 +2,13 @@ package org.dsA2;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * ClassName: MyWhiteBoard
+ * ClassName: Painting
  * Package: org.dsA2
- * Description:
  *
  * @Author Shiqiang Ren
  * @Create 12/5/2023 21:13
