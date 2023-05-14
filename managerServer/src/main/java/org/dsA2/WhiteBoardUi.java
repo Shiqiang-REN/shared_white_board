@@ -54,7 +54,7 @@ public class WhiteBoardUi {
     private int endY;
     private JFileChooser fileChooser = new JFileChooser();
 
-    public WhiteBoardUi(String username, String role) {
+    public WhiteBoardUi(String username) {
         initBoard();
         penButton.addActionListener(new ActionListener() {
             @Override
