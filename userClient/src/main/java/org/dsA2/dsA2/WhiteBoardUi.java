@@ -1,4 +1,4 @@
-package org.dsA2;
+package org.dsA2.dsA2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
@@ -39,7 +39,6 @@ public class WhiteBoardUi {
     private JButton ColorButton;
     private JScrollPane chatPane;
     private JLabel userLabel;
-    private JComboBox filesComboBox;
     private JTextArea textArea1;
     private JScrollPane userPane;
     private JButton penButton;
@@ -50,7 +49,6 @@ public class WhiteBoardUi {
     private int startY;
     private int endX;
     private int endY;
-    private JFileChooser fileChooser = new JFileChooser();
 
     public WhiteBoardUi(String username) {
         initBoard();
@@ -103,7 +101,6 @@ public class WhiteBoardUi {
                 selectedColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
             }
         });
-
         whiteBoardPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
@@ -173,7 +170,6 @@ public class WhiteBoardUi {
                 }
             }
         });
-
         whiteBoardPanel.addMouseMotionListener(new MouseMotionAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
@@ -194,28 +190,6 @@ public class WhiteBoardUi {
 
             }
         });
-
-        filesComboBox.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String selectedOption = (String) filesComboBox.getSelectedItem();
-                switch (selectedOption) {
-                    case "New" -> ((Painting) whiteBoardPanel).clearPainting();
-                    case "Open" -> openFile();
-                    case "Save" -> saveFile("text");
-                    case "Save As" -> saveFile("pic");
-                    case "Close" -> {
-                        if (JOptionPane.showConfirmDialog(frame,
-                                "Are you sure you want to close?", "Close Window?",
-                                JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-                            System.exit(0);
-                        }
-                    }
-                }
-                filesComboBox.setSelectedItem("FILE");
-            }
-        });
     }
 
     public void initBoard() {
@@ -229,15 +203,13 @@ public class WhiteBoardUi {
             @Override
             public void windowClosing(WindowEvent windowEvent) {
                 if (JOptionPane.showConfirmDialog(frame,
-                        "Are you sure you want to close this window?", "Close Window?",
+                        "Are you sure you want to Leave?", "Close Window?",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                     System.exit(0);
                 }
             }
         });
-        //removeUser.setVisible(false);
-        //filesComboBox.setVisible(false);
 
         selectedColor = "#000000";
 
@@ -265,86 +237,4 @@ public class WhiteBoardUi {
         whiteBoardPanel = new Painting();
     }
 
-    public void saveFile (String type){
-        fileChooser.setDialogTitle("Save File!");
-        fileChooser.setAcceptAllFileFilterUsed(false);
-
-        FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
-        FileNameExtensionFilter pngFilter = new FileNameExtensionFilter("Png Files (*.csv)", "png");
-
-        fileChooser.addChoosableFileFilter(txtFilter);
-        fileChooser.addChoosableFileFilter(pngFilter);
-
-
-
-        fileChooser.setFileFilter(txtFilter);
-
-        fileChooser.setCurrentDirectory(new File("."));
-        int fileSelection = fileChooser.showSaveDialog(panelMain);
-
-
-
-        if (fileSelection == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String fileType = ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
-            try {
-                if(type.equals("text")){
-                    List<String[]> shapes =  ((Painting)whiteBoardPanel).getShapes();
-                    String jsonStr = JSON.toJSONString(shapes);
-
-                    String fileName = selectedFile.getAbsolutePath();
-                    fileName = fileName +"."+ fileType;
-
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-                    writer.write(jsonStr);
-                    writer.close();
-                    System.out.println("File saved successfully.");
-                } else if (type.equals("pic")) {
-                    BufferedImage image = new BufferedImage(whiteBoardPanel.getWidth(), whiteBoardPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
-                    Graphics2D g2d = image.createGraphics();
-                    whiteBoardPanel.paint(g2d);
-                    g2d.dispose();
-                    String fileName = selectedFile.getAbsolutePath();
-                    fileName = fileName +"."+ fileType;
-                    try {
-                        ImageIO.write(image, fileType, new File(fileName));
-                    } catch (IOException ex) {
-                        ex.printStackTrace();
-                    }
-                }
-
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-
-    public void openFile(){
-        fileChooser.setDialogTitle("Open the file!");
-        fileChooser.setAcceptAllFileFilterUsed(true);
-        //FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
-        //fileChooser.setFileFilter(filter);
-        fileChooser.setCurrentDirectory(new File("."));
-        int fileSelection = fileChooser.showOpenDialog(panelMain);
-        if (fileSelection == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-
-
-            StringBuilder jsonStr = new StringBuilder();
-            try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
-                String line;
-                while ((line = br.readLine()) != null) {
-                    jsonStr.append(line);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            String s = jsonStr.toString();
-
-            List<String[]> shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
-            //List<String[]> shapes = JSON.parseObject(jsonStr.toString()), List.class);
-            ((Painting)whiteBoardPanel).setShapes(shapes);
-        }
-    }
 }
