@@ -2,6 +2,7 @@ package org.dsA2;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -20,8 +21,6 @@ public class Painting extends JPanel {
     List<String[]> shapes = new ArrayList<>();
     private Graphics graphics;
 
-
-
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -34,6 +33,7 @@ public class Painting extends JPanel {
                 case "oval" -> drawOval(shape[1], shape[2], shape[3], shape[4], shape[5]);
                 case "rectangle" -> drawRectangle(shape[1], shape[2], shape[3], shape[4], shape[5]);
                 case "text" -> drawString(shape[1], shape[2], shape[3], shape[4]);
+                case "pen" -> drawLine(shape[1], shape[2], shape[3], shape[4], shape[5]);
             }
 
             //System.out.println(hobbyArray[0]);
@@ -103,4 +103,12 @@ public class Painting extends JPanel {
         repaint();
     }
 
+    public List<String[]> getShapes() {
+        return shapes;
+    }
+
+    public void setShapes(List<String[]> shapes) {
+        this.shapes = shapes;
+        repaint();
+    }
 }

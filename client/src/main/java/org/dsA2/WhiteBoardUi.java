@@ -1,10 +1,16 @@
 package org.dsA2;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.TypeReference;
+
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.awt.image.BufferedImage;
+import java.io.*;
+import java.util.List;
 
 
 /**
@@ -46,6 +52,7 @@ public class WhiteBoardUi {
     private int startY;
     private int endX;
     private int endY;
+    private JFileChooser fileChooser = new JFileChooser();
 
     public WhiteBoardUi(String username, String role) {
         initBoard();
@@ -195,26 +202,18 @@ public class WhiteBoardUi {
             public void actionPerformed(ActionEvent e) {
                 String selectedOption = (String) filesComboBox.getSelectedItem();
                 switch (selectedOption) {
-                    case "New":
-                        ((Painting)whiteBoardPanel).clearPainting();
-                        break;
-                    case "Open":
-                        filePanel("Open");
-                        break;
-                    case "Save":
-                        filePanel("Save");
-                        break;
-                    case "Save As":
-                        filePanel("Save AS");
-                        break;
-                    case "Close":
+                    case "New" -> ((Painting) whiteBoardPanel).clearPainting();
+                    case "Open" -> openFile();
+                    case "Save" -> saveFile("text");
+                    case "Save As" -> saveFile("pic");
+                    case "Close" -> {
                         if (JOptionPane.showConfirmDialog(frame,
                                 "Are you sure you want to close?", "Close Window?",
                                 JOptionPane.YES_NO_OPTION,
-                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
+                                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
                             System.exit(0);
                         }
-                        break;
+                    }
                 }
                 filesComboBox.setSelectedItem("FILE");
             }
@@ -268,24 +267,86 @@ public class WhiteBoardUi {
         whiteBoardPanel = new Painting();
     }
 
-    public File filePanel (String title){
-        JFileChooser fileChooser = new JFileChooser();
-        fileChooser.setDialogTitle(title);
+    public void saveFile (String type){
+        fileChooser.setDialogTitle("Save File!");
         fileChooser.setAcceptAllFileFilterUsed(false);
-        FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
 
-        fileChooser.setFileFilter(filter);
+        FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
+        FileNameExtensionFilter pngFilter = new FileNameExtensionFilter("Png Files (*.csv)", "png");
 
-        int fileSelection1 = 0;
-        switch (title) {
-            case "Save" -> fileSelection1 = fileChooser.showSaveDialog(panelMain);
-            case "Open" -> fileSelection1 = fileChooser.showOpenDialog(panelMain);
+        fileChooser.addChoosableFileFilter(txtFilter);
+        fileChooser.addChoosableFileFilter(pngFilter);
+
+
+
+        fileChooser.setFileFilter(txtFilter);
+
+        fileChooser.setCurrentDirectory(new File("."));
+        int fileSelection = fileChooser.showSaveDialog(panelMain);
+
+
+
+        if (fileSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            String fileType = ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
+            try {
+                if(type.equals("text")){
+                    List<String[]> shapes =  ((Painting)whiteBoardPanel).getShapes();
+                    String jsonStr = JSON.toJSONString(shapes);
+
+                    String fileName = selectedFile.getAbsolutePath();
+                    fileName = fileName +"."+ fileType;
+
+                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+                    writer.write(jsonStr);
+                    writer.close();
+                    System.out.println("File saved successfully.");
+                } else if (type.equals("pic")) {
+                    BufferedImage image = new BufferedImage(whiteBoardPanel.getWidth(), whiteBoardPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
+                    Graphics2D g2d = image.createGraphics();
+                    whiteBoardPanel.paint(g2d);
+                    g2d.dispose();
+                    String fileName = selectedFile.getAbsolutePath();
+                    fileName = fileName +"."+ fileType;
+                    try {
+                        ImageIO.write(image, fileType, new File(fileName));
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-        if (fileSelection1 == JFileChooser.APPROVE_OPTION) {
-            System.out.println(11);
-            return fileChooser.getSelectedFile();
+    }
 
+
+    public void openFile(){
+        fileChooser.setDialogTitle("Open the file!");
+        fileChooser.setAcceptAllFileFilterUsed(true);
+        //FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
+        //fileChooser.setFileFilter(filter);
+        fileChooser.setCurrentDirectory(new File("."));
+        int fileSelection = fileChooser.showOpenDialog(panelMain);
+        if (fileSelection == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+
+
+            StringBuilder jsonStr = new StringBuilder();
+            try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    jsonStr.append(line);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            String s = jsonStr.toString();
+
+            List<String[]> shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
+            //List<String[]> shapes = JSON.parseObject(jsonStr.toString()), List.class);
+            ((Painting)whiteBoardPanel).setShapes(shapes);
         }
-        return null;
     }
 }
