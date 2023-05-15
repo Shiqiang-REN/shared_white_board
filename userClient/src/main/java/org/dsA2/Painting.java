@@ -95,15 +95,8 @@ public class Painting extends JPanel {
                 Integer.parseInt(startY));
     }
 
-
-    public List<String[]> getShapes() {
-        return shapes;
-    }
-
     public void setShapes(List<String[]> shapes) {
         this.shapes = shapes;
         repaint();
     }
-
-
 }

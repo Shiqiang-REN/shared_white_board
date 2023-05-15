@@ -25,6 +25,8 @@ public class JoinBoardUi {
 
     private static Boolean joinRequest = false;
     private static List<String[]> shapes = new ArrayList<>();
+    static WhiteBoardUi  wb;
+    static Connection sc1;
 
     public static void main(String[] args) {
         int userId = generateId();
@@ -53,7 +55,7 @@ public class JoinBoardUi {
             }
             //Create WhiteBoardUi
             if(joinRequest){
-                WhiteBoardUi wb = new WhiteBoardUi(username, userId);
+                wb = new WhiteBoardUi(username, userId, sc1);
                 wb.setShapes(shapes);
             }
         }
@@ -73,9 +75,10 @@ public class JoinBoardUi {
 
             //List<String[]> initShapes = ((Painting)wb.getWhiteBoardPanel()).getShapes();
             // create a thread handle the user socket
-            Connection sc = new Connection(user,username, userId );
-            //message.getUsers().add(sc);
-            sc.start();
+            sc1 = new Connection(user, username, userId, "request");
+            Connection sc2 = new Connection(user, username, userId, "respond");
+            sc1.start();
+            sc2.start();
 
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -90,12 +93,13 @@ public class JoinBoardUi {
     }
 
     public static void setJoinRequest(JSONObject respond){
-        String answer = (String) respond.get("join");
-        if(answer.equals("Ok")){
+       // String answer = (String) ;
+        if(respond.get("join") !=null){
             joinRequest = true;
             shapes = JSON.parseObject(respond.get("shapes").toString(), new TypeReference<List<String[]>>(){});
-        }else if(respond.get("shapes") != null){
-            shapes = JSON.parseObject(respond.get("shapes").toString(), new TypeReference<List<String[]>>(){});
+        }else if(respond.get("data") != null){
+            shapes = JSON.parseObject(respond.get("data").toString(), new TypeReference<List<String[]>>(){});
+            wb.setShapes(shapes);
         }
     }
 }

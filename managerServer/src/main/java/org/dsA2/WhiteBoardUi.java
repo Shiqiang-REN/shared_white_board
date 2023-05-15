@@ -361,7 +361,6 @@ public class WhiteBoardUi {
         if (fileSelection == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
 
-
             StringBuilder jsonStr = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
                 String line;
@@ -389,8 +388,15 @@ public class WhiteBoardUi {
 
     public void updateShapesToAll (){
         JSONObject json = new JSONObject();
-        json.put("shapes", shapes);
+        json.put("requestType", "shapes");
+        json.put("data", shapes);
         message.broadcastMessage(json);
+    }
+
+    public void updateShapesToAll2 (JSONObject respond){
+        shapes = JSON.parseObject(respond.get("data").toString(), new TypeReference<List<String[]>>(){});
+        ((Painting)whiteBoardPanel).setShapes(shapes);
+        message.broadcastMessage(respond);
     }
 
     public JSONObject requestJoin(JSONObject request) {

@@ -51,9 +51,11 @@ public class CreateBoardUi {
                 Socket user = serverSocket.accept(); // 等待客户端连接
                 List<String[]> initShapes = ((Painting)wb.getWhiteBoardPanel()).getShapes();
                 // create a thread handle the user socket
-                Connection sc = new Connection(user, initShapes, wb);
-                message.getUsers().add(sc);
-                sc.start();
+                Connection sc1 = new Connection(user, initShapes, wb, "request");
+                Connection sc2 = new Connection(user, initShapes, wb, "respond");
+                message.getUsers().add(sc1);
+                sc1.start();
+                sc2.start();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
