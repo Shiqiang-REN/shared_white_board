@@ -1,5 +1,7 @@
 package org.dsA2;
 
+import com.alibaba.fastjson2.JSONObject;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
@@ -42,7 +44,7 @@ public class Painting extends JPanel {
 
     public void addPaintingShape(String[] s) {
         shapes.add(s);
-        System.out.println(Arrays.toString(s));
+        //System.out.println(Arrays.toString(s));
         repaint();
     }
 
@@ -96,10 +98,6 @@ public class Painting extends JPanel {
                 Integer.parseInt(startY));
     }
 
-    public void clearPainting (){
-        shapes = new ArrayList<>();
-        repaint();
-    }
 
     public List<String[]> getShapes() {
         return shapes;
@@ -109,4 +107,6 @@ public class Painting extends JPanel {
         this.shapes = shapes;
         repaint();
     }
+
+
 }

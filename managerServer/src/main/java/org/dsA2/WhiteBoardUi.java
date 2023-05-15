@@ -2,6 +2,7 @@ package org.dsA2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson2.JSONObject;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -10,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -22,6 +24,7 @@ import java.util.List;
  * @Version 1.0
  */
 public class WhiteBoardUi {
+    private final Messaging message;
     private JPanel panelMain;
     private JPanel toolsPanel;
     private JButton lineButton;
@@ -40,9 +43,10 @@ public class WhiteBoardUi {
     private JScrollPane chatPane;
     private JLabel userLabel;
     private JComboBox filesComboBox;
-    private JTextArea textArea1;
+    private JTextArea chatTextArea;
     private JScrollPane userPane;
     private JButton penButton;
+    private JButton removeUser;
     private JFrame frame;
     private String selectedColor;
     private String toolType = "pen";
@@ -51,8 +55,15 @@ public class WhiteBoardUi {
     private int endX;
     private int endY;
     private JFileChooser fileChooser = new JFileChooser();
+    private List<String[]> shapes = new ArrayList<>();
+    private String username;
+    private int userId;
 
-    public WhiteBoardUi(String username) {
+
+    public WhiteBoardUi(String username, int userId,Messaging message) {
+        this.username = username;
+        this.userId = userId;
+        this.message = message;
         initBoard();
         penButton.addActionListener(new ActionListener() {
             @Override
@@ -110,9 +121,6 @@ public class WhiteBoardUi {
                 super.mousePressed(e);
                 startX= e.getX();
                 startY= e.getY();
-                System.out.println(e.getX()+"---"+e.getY());
-                //System.out.println(selectedColor);
-                //createUIComponents("Line");
             }
 
             @Override
@@ -122,51 +130,60 @@ public class WhiteBoardUi {
                 endY = e.getY();
                 switch (toolType) {
                     case "line":
-                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                        shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
                                 String.valueOf(startX),
                                 String.valueOf(startY),
                                 String.valueOf(endX),
                                 String.valueOf(endY)});
+                        ((Painting)whiteBoardPanel).setShapes(shapes);
+                        updateShapesToAll();
                         break;
                     case "circle":
                         double diameter = Math.sqrt((endX - startX)*(endX - startX)+(endY - startY)*(endY - startY));
-                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                        shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
                                 String.valueOf(startX-(int)diameter),
                                 String.valueOf(startY-(int)diameter),
                                 String.valueOf(2*(int)diameter),
                                 String.valueOf(2*(int)diameter)});
+                        ((Painting)whiteBoardPanel).setShapes(shapes);
+                        updateShapesToAll();
                         break;
                     case "oval":
-                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                        shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
                                 String.valueOf(startX),
                                 String.valueOf(startY),
                                 String.valueOf(Math.abs(endX-startX)),
                                 String.valueOf(Math.abs(endY- startY))});
+                        ((Painting)whiteBoardPanel).setShapes(shapes);
+                        updateShapesToAll();
                         //Math.abs((startY- startX)/2)
                         break;
                     case "rectangle":
-                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                        shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
                                 String.valueOf(startX),
                                 String.valueOf(startY),
                                 String.valueOf(Math.abs(endX-startX)),
-                                String.valueOf(Math.abs(endY- startY))
-                                });
+                                String.valueOf(Math.abs(endY- startY))});
+                        ((Painting)whiteBoardPanel).setShapes(shapes);
+                        updateShapesToAll();
                         break;
                     case "text":
                         String text = JOptionPane.showInputDialog("Please input the text!");
-                        ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                        shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
                                 String.valueOf(startX),
                                 String.valueOf(startY), text});
+                        ((Painting)whiteBoardPanel).setShapes(shapes);
+                        updateShapesToAll();
                         break;
                     default:
                         break;
@@ -183,24 +200,31 @@ public class WhiteBoardUi {
                     int prevY = startY;
                     startX = e.getX();
                     startY = e.getY();
-                    ((Painting)whiteBoardPanel).addPaintingShape(new String[]{
+                    shapes.add(new String[]{
                             toolType,
                             selectedColor,
                             String.valueOf(prevX),
                             String.valueOf(prevY),
                             String.valueOf(startX),
                             String.valueOf(startY)});
+                    ((Painting)whiteBoardPanel).setShapes(shapes);
+                    updateShapesToAll();
                 }
 
             }
         });
 
+        //manager features
         filesComboBox.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String selectedOption = (String) filesComboBox.getSelectedItem();
                 switch (selectedOption) {
-                    case "New" -> ((Painting) whiteBoardPanel).clearPainting();
+                    case "New" ->{
+                        shapes = new ArrayList<>();
+                        ((Painting)whiteBoardPanel).setShapes(shapes);
+                        updateShapesToAll();
+                    }
                     case "Open" -> openFile();
                     case "Save" -> saveFile("text");
                     case "Save As" -> saveFile("pic");
@@ -214,6 +238,27 @@ public class WhiteBoardUi {
                     }
                 }
                 filesComboBox.setSelectedItem("FILE");
+            }
+        });
+        removeUser.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+              //shanchuyige
+                DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
+                int selectedIndex = usersList.getSelectedIndex();
+                if (selectedIndex != -1) {
+                    model.remove(selectedIndex);
+                }
+            }
+        });
+        send.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String info = inputMessageTextField.getText();
+                chatTextArea.append(info);
+                JSONObject json = new JSONObject();
+                json.put("chat", info);
+                message.getRequests().add(json);
             }
         });
     }
@@ -236,28 +281,19 @@ public class WhiteBoardUi {
                 }
             }
         });
+
+        //manager features
         //removeUser.setVisible(false);
         //filesComboBox.setVisible(false);
 
         selectedColor = "#000000";
+        chatTextArea.setEditable(false);
 
-        DefaultListModel<String> model = new DefaultListModel<>();
-        model.addElement("元素1");
-        model.addElement("元素2");
-        model.addElement("元素3");
-
-        DefaultListModel newModel = (DefaultListModel) usersList.getModel();
-        newModel.addElement("new item1");
-        newModel.addElement("new item2");
-        newModel.addElement("new item3");
-        newModel.addElement("new item4");
-        usersList.setModel(newModel);
-        //String selectedValue = (String) list1.getSelectedValue();
-
-        DefaultListModel newModel2 = (DefaultListModel) usersList.getModel();
-        int index = newModel2.indexOf("new item2");
-        newModel2.remove(index);
-        usersList.setModel(newModel2);
+        //only can select single
+        usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        //tianjia1yige1
+        DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
+        model.addElement("Manager - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {
@@ -265,6 +301,7 @@ public class WhiteBoardUi {
         whiteBoardPanel = new Painting();
     }
 
+    //manager features
     public void saveFile (String type){
         fileChooser.setDialogTitle("Save File!");
         fileChooser.setAcceptAllFileFilterUsed(false);
@@ -275,13 +312,10 @@ public class WhiteBoardUi {
         fileChooser.addChoosableFileFilter(txtFilter);
         fileChooser.addChoosableFileFilter(pngFilter);
 
-
-
         fileChooser.setFileFilter(txtFilter);
 
         fileChooser.setCurrentDirectory(new File("."));
         int fileSelection = fileChooser.showSaveDialog(panelMain);
-
 
 
         if (fileSelection == JFileChooser.APPROVE_OPTION) {
@@ -289,9 +323,8 @@ public class WhiteBoardUi {
             String fileType = ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
             try {
                 if(type.equals("text")){
-                    List<String[]> shapes =  ((Painting)whiteBoardPanel).getShapes();
-                    String jsonStr = JSON.toJSONString(shapes);
 
+                    String jsonStr = JSON.toJSONString(shapes);
                     String fileName = selectedFile.getAbsolutePath();
                     fileName = fileName +"."+ fileType;
 
@@ -323,8 +356,6 @@ public class WhiteBoardUi {
     public void openFile(){
         fileChooser.setDialogTitle("Open the file!");
         fileChooser.setAcceptAllFileFilterUsed(true);
-        //FileNameExtensionFilter filter = new FileNameExtensionFilter("Text files", "txt");
-        //fileChooser.setFileFilter(filter);
         fileChooser.setCurrentDirectory(new File("."));
         int fileSelection = fileChooser.showOpenDialog(panelMain);
         if (fileSelection == JFileChooser.APPROVE_OPTION) {
@@ -341,10 +372,25 @@ public class WhiteBoardUi {
                 ex.printStackTrace();
             }
             String s = jsonStr.toString();
-
-            List<String[]> shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
-            //List<String[]> shapes = JSON.parseObject(jsonStr.toString()), List.class);
+            shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
             ((Painting)whiteBoardPanel).setShapes(shapes);
+            updateShapesToAll();
         }
     }
+
+
+    public JPanel getWhiteBoardPanel() {
+        return whiteBoardPanel;
+    }
+
+    public JList<String> getUsersList() {
+        return usersList;
+    }
+
+    public void updateShapesToAll (){
+        JSONObject json = new JSONObject();
+        json.put("update", shapes);
+        message.broadcastMessage(json);
+    }
+
 }

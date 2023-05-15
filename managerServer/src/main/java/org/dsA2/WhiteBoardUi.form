@@ -163,7 +163,7 @@
                 <properties/>
                 <border type="none"/>
                 <children>
-                  <component id="8400f" class="javax.swing.JTextArea" binding="textArea1" default-binding="true">
+                  <component id="8400f" class="javax.swing.JTextArea" binding="chatTextArea">
                     <constraints/>
                     <properties/>
                   </component>
