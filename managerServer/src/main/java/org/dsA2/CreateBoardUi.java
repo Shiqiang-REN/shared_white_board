@@ -8,16 +8,16 @@ import java.util.List;
 import java.util.UUID;
 
 /**
- * ClassName: LoginUi
+ * ClassName: CreateBoardUi
  * Package: org.dsA2
- * Description: manager LoginUi
+ * Description: manager Create Board Ui
  *
  * @Author Shiqiang Ren
  * @Create 12/5/2023 12:32
  * @Version 1.0
  */
 
-public class LoginUi {
+public class CreateBoardUi {
 
     public static void main(String[] args) {
         int userId = generateId();
