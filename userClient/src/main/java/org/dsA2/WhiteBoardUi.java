@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -24,7 +25,7 @@ import java.util.List;
  * @Version 1.0
  */
 public class WhiteBoardUi {
-    private final Messaging message;
+
     private JPanel panelMain;
     private JPanel toolsPanel;
     private JButton lineButton;
@@ -55,15 +56,17 @@ public class WhiteBoardUi {
     private int endX;
     private int endY;
     private JFileChooser fileChooser = new JFileChooser();
-    private List<String[]> shapes = new ArrayList<>();
+    private List<String[]> shapes = new CopyOnWriteArrayList<>();
+
     private String username;
     private int userId;
 
 
-    public WhiteBoardUi(String username, int userId,Messaging message) {
+    public WhiteBoardUi(String username, int userId) {
         this.username = username;
         this.userId = userId;
-        this.message = message;
+        //this.shapes = shapes;
+
         initBoard();
         penButton.addActionListener(new ActionListener() {
             @Override
@@ -258,7 +261,7 @@ public class WhiteBoardUi {
                 chatTextArea.append(info);
                 JSONObject json = new JSONObject();
                 json.put("chat", info);
-                message.getRequests().add(json);
+                //message.getRequests().add(json);
             }
         });
     }
@@ -293,7 +296,7 @@ public class WhiteBoardUi {
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //tianjia1yige1
         DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
-        model.addElement("Manager - "+username+" (id:"+userId+")");
+        model.addElement("User - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {
@@ -389,22 +392,12 @@ public class WhiteBoardUi {
 
     public void updateShapesToAll (){
         JSONObject json = new JSONObject();
-        json.put("shapes", shapes);
-        message.broadcastMessage(json);
+        json.put("update", shapes);
+        //message.broadcastMessage(json);
     }
 
-    public JSONObject requestJoin(JSONObject request) {
-        JSONObject json = new JSONObject();
-        String username = (String) request.get("requestJoinName");
-        int userId = (int) request.get("requestJoinId");
-        if (JOptionPane.showConfirmDialog(frame,
-                username+"(ID: "+userId+")"+"  want to join?", "Join Request?",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-            json.put("join", "Ok");
-            json.put("shapes", shapes);
-            return json;
-        }
-        return json;
+    public void setShapes(List<String[]> shapes) {
+        this.shapes = shapes;
+        ((Painting)whiteBoardPanel).setShapes(shapes);
     }
 }

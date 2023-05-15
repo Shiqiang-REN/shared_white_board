@@ -36,7 +36,6 @@ public class Messaging extends Thread{
     }
 
     public  void broadcastMessage (JSONObject json){
-        System.out.println(json);
         for(Connection user : users) {
             user.addRequest(json);
         }
