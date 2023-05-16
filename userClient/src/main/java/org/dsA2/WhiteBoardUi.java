@@ -220,7 +220,7 @@ public class WhiteBoardUi {
             public void actionPerformed(ActionEvent e) {
                 String info = inputMessageTextField.getText();
                 //chatTextArea.append(info);
-                updateChattingToAll(info+ "\n");
+                updateChattingToAll(info+"\n");
             }
         });
     }
@@ -295,7 +295,9 @@ public class WhiteBoardUi {
 
     public void setUpdatedChatting(JSONObject respond) {
         String s  = respond.get("data").toString();
-        chatTextArea.append(s+ "\n");
+        chatTextArea.append(s+"\n");
+        JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
     }
 
 

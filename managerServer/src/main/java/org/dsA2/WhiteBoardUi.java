@@ -256,10 +256,10 @@ public class WhiteBoardUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String info = inputMessageTextField.getText();
-                chatTextArea.append(info+ "\n");
+                chatTextArea.append("\n"+info+"\n");
                 JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
                 verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-                updateChattingToAll(info+ "\n");
+                updateChattingToAll(info+"\n");
                 //message.getRequests().add(json);
             }
         });
@@ -410,7 +410,9 @@ public class WhiteBoardUi {
 
     public void addChattingInfo (JSONObject respond){
         String s  = respond.get("data").toString();
-        chatTextArea.append(s+ "\n");
+        chatTextArea.append(s+"\n");
+        JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
+        verticalScrollBar.setValue(verticalScrollBar.getMaximum());
         message.broadcastMessage(respond);
     }
 
