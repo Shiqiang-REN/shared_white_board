@@ -4,7 +4,9 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -19,6 +21,8 @@ import java.util.UUID;
 
 public class CreateBoardUi {
 
+
+
     public static void main(String[] args) {
         //login window
         int userId = generateId();
@@ -26,6 +30,9 @@ public class CreateBoardUi {
         int option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
 
         String username = ((JTextField) inputs[1]).getText();
+        if(option == JOptionPane.CANCEL_OPTION){
+            System.exit(0);
+        }
         while (username.isEmpty() && option == JOptionPane.OK_OPTION) {
             JOptionPane.showMessageDialog(null,"Can not be empty!");
             option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
@@ -58,6 +65,9 @@ public class CreateBoardUi {
                 Connection sc1 = new Connection(user,  wb, "request");
                 Connection sc2 = new Connection(user,  wb, "respond");
                 message.getUsers().add(sc1);
+                //UserConnections();
+                message.getUserConnections().put(sc1,user);
+                message.getUserConnections().put(sc2,user);
                 sc1.start();
                 sc2.start();
             }

@@ -5,7 +5,6 @@ import com.alibaba.fastjson2.JSONObject;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
@@ -22,13 +21,13 @@ public class Connection extends Thread{
     LinkedBlockingQueue<JSONObject> requests = new LinkedBlockingQueue<>();
     Socket socket;
     WhiteBoardUi wb;
-    //List<String[]> initShapes;
     String connectionType;
 
-    public Connection(Socket user, WhiteBoardUi wb, String connectionType) {
-        this.socket = user;
+    Boolean connectionStatus = true;
+
+    public Connection(Socket socket, WhiteBoardUi wb, String connectionType) {
+        this.socket = socket;
         this.wb = wb;
-        //this.initShapes = initShapes;
         this.connectionType = connectionType;
     }
     @Override
@@ -38,49 +37,50 @@ public class Connection extends Thread{
             BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream()));
 
             if(connectionType.equals("request")){
-                while(true){
+                while(connectionStatus){
                     if (!requests.isEmpty()) {
                         String jsonString = JSON.toJSONString(requests.poll());
-                        System.out.println(jsonString);
                         writer.write(jsonString);
                         writer.newLine();
                         writer.flush();
                     }
                 }
+                socket.close();
             }else if(connectionType.equals("respond")){
-                while(true){
-                    try {
-                        String jsonString = reader.readLine();
-                        JSONObject receivingInfo = JSON.parseObject(jsonString);
-                        if(receivingInfo != null){
-                            String respondType = (String) receivingInfo.get("requestType");
-                            if (respondType.equals("join")) {
-                                wb.requestJoin(receivingInfo);
-                            } else if (respondType.equals("chatting")) {
-                                wb.addChattingInfo(receivingInfo);
-                            } else if (respondType.equals("shapes")) {
-                                wb.updateShapesToAll2(receivingInfo);
-                            } else if (respondType.equals("CLOSE")) {
-                                System.out.println("User disconnected from IP ---" + socket.getInetAddress().getHostAddress());
-                                return;
-                            } else {
-                                System.out.println("Request type can not be identified!");
-                            }
+                String jsonString;
+                while(connectionStatus && (jsonString = reader.readLine()) != null){
+                    JSONObject receivingInfo = JSON.parseObject(jsonString);
+                    if(receivingInfo != null){
+                        String respondType = (String) receivingInfo.get("requestType");
+                        if (respondType.equals("join")) {
+                            wb.requestJoin(receivingInfo, socket);
+                        } else if (respondType.equals("chatting")) {
+                            wb.addChattingInfo(receivingInfo);
+                        } else if (respondType.equals("shapes")) {
+                            wb.updateShapesToAll2(receivingInfo);
+                        } else if (respondType.equals("close")) {
+                            return;
+                        } else {
+                            System.out.println("Request type can not be identified!");
                         }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 }
+                socket.close();
             }
         } catch (IOException e) {
-            System.out.println(e.getMessage());
-        } finally {
-            System.out.println(1);
+            if(connectionStatus){
+                wb.userOffline(socket);
+            }
         }
     }
 
     public void addRequest(JSONObject json){
         requests.add(json);
+    }
+
+
+    public void close (){
+        connectionStatus = false;
     }
 
 }

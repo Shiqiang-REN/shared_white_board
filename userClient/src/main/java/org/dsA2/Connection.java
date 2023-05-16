@@ -51,28 +51,23 @@ public class Connection extends Thread{
                     }
                 }
             }else if(connectionType.equals("respond")) {
-                while (true) {
-                    try {
-                        String jsonString = reader.readLine();
-                        JSONObject receivingInfo = JSON.parseObject(jsonString);
-                        System.out.println("closed");
-                        if (receivingInfo != null) {
-                            String respondType = (String) receivingInfo.get("requestType");
-                            if (respondType != null) {
-                                if (respondType.equals("join")) {
-                                    setInitJoin(receivingInfo);
-                                } else if (respondType.equals("shapes")) {
-                                    //update board
-                                    wb.setUpdatedShapes(receivingInfo);
-                                } else if (respondType.equals("userList")) {
-                                    wb.setUpdatedUsers(receivingInfo);
-                                }else if (respondType.equals("chatting")) {
-                                    wb.setUpdatedChatting(receivingInfo);
-                                }
+                String jsonString;
+                while ((jsonString = reader.readLine()) != null) {
+                    JSONObject receivingInfo = JSON.parseObject(jsonString);
+                    if (receivingInfo != null) {
+                        String respondType = (String) receivingInfo.get("requestType");
+                        if (respondType != null) {
+                            if (respondType.equals("join")) {
+                                setInitJoin(receivingInfo);
+                            } else if (respondType.equals("shapes")) {
+                                //update board
+                                wb.setUpdatedShapes(receivingInfo);
+                            } else if (respondType.equals("userList")) {
+                                wb.setUpdatedUsers(receivingInfo);
+                            }else if (respondType.equals("chatting")) {
+                                wb.setUpdatedChatting(receivingInfo);
                             }
                         }
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
                     }
                 }
             }
@@ -80,7 +75,7 @@ public class Connection extends Thread{
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } finally {
-            System.out.println("finally");
+            wb.kickOutPanel();
         }
     }
 

@@ -32,16 +32,29 @@ public class Users {
     }
 
 
+    public String getUserByIDAndRemove (String id){
+        String element = null;
+        for (int i = 0; i < model.getSize(); i++) {
+            element = model.getElementAt(i);
+            if (element.contains(id)) {
+                model.remove(i);
+            }
+        }
+        return element;
+    }
+
     public void setUserList (String[] userArrayList){
         usersList.setListData(userArrayList);
     }
 
 
-    public void removeSelectedUser (){
+    public String removeSelectedUser (){
         int selectedIndex = usersList.getSelectedIndex();
+        String value = model.getElementAt(selectedIndex);
         if (selectedIndex != -1) {
             model.remove(selectedIndex);
         }
+        return value;
     }
 
 

@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -62,6 +63,7 @@ public class WhiteBoardUi {
     private int userId;
 
     private Users users;
+
 
 
     public WhiteBoardUi(String username, int userId,Messaging message) {
@@ -248,8 +250,9 @@ public class WhiteBoardUi {
         removeUser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                users.removeSelectedUser();
+                String removedUser = users.removeSelectedUser();
                 updateUsersToAll();
+                message.closeConnectionByID(removedUser);
             }
         });
         send.addActionListener(new ActionListener() {
@@ -416,13 +419,12 @@ public class WhiteBoardUi {
         message.broadcastMessage(respond);
     }
 
-
-
-    public void requestJoin(JSONObject request) {
+    public void requestJoin(JSONObject request, Socket socket) {
         JSONObject jsonUserList = new JSONObject();
         JSONObject jsonJoin = new JSONObject();
         String username = (String) request.get("requestJoinName");
-        int userId = (int) request.get("requestJoinId");
+        int id = (int) request.get("requestJoinId");
+        String userId = String.valueOf(id);
         if (JOptionPane.showConfirmDialog(frame,
                 username+"(ID: "+userId+")"+"  want to join?", "Join Request?",
                 JOptionPane.YES_NO_OPTION,
@@ -430,7 +432,7 @@ public class WhiteBoardUi {
             jsonJoin.put("requestType", "join");
             jsonJoin.put("status", "Ok");
             jsonJoin.put("shapes", shapes);
-            users.addUser(username, String.valueOf(userId));
+            users.addUser(username, userId);
             String[] usersArray = users.getUserArrayList();
             jsonUserList.put("requestType", "userList");
             jsonUserList.put("data", usersArray);
@@ -442,6 +444,21 @@ public class WhiteBoardUi {
                 throw new RuntimeException(e);
             }
             message.broadcastMessage(jsonUserList);
+            message.getClients().put(userId, socket);
+        }else{
+            System.out.println(socket);
+            message.closeConnection(socket);
+        }
+    }
+
+    public void userOffline( Socket socket) {
+        String userID = message.removeSocket(socket);
+        String user = users.getUserByIDAndRemove(userID);
+        message.closeConnection(socket);
+        if (JOptionPane.showConfirmDialog(frame,
+                user+" has leave the chat", "Close Window?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
         }
     }
 }

@@ -239,6 +239,10 @@ public class WhiteBoardUi {
                         "Are you sure you want to close this window?", "Close Window?",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+                    JSONObject json = new JSONObject();
+                    json.put("requestType", "close");
+                    sc1.addRequest(json);
                     System.exit(0);
                 }
             }
@@ -300,5 +304,13 @@ public class WhiteBoardUi {
         verticalScrollBar.setValue(verticalScrollBar.getMaximum());
     }
 
+    public void kickOutPanel() {
+        if (JOptionPane.showConfirmDialog(frame,
+                "Are you sure you want to close this window?", "Close Window?",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+            System.exit(0);
+        }
+    }
 
 }
