@@ -20,6 +20,7 @@ import java.util.UUID;
 public class CreateBoardUi {
 
     public static void main(String[] args) {
+        //login window
         int userId = generateId();
         Object[] inputs = {"Please enter your name：", new JTextField(),"Your User Id is :",new JLabel(String.valueOf(userId))};
         int option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
@@ -30,6 +31,8 @@ public class CreateBoardUi {
             option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
             username = ((JTextField) inputs[1]).getText();
         }
+
+
         //create a thread for chatting and user list
         Messaging message = new Messaging();
         message.start();
@@ -37,6 +40,7 @@ public class CreateBoardUi {
         //Create WhiteBoardUi
         WhiteBoardUi wb = new WhiteBoardUi(username, userId, message);
 
+        // create connection threads(request listener thread and respond listener)
         checkAndCreateConnection(args[0], message, wb);
 
     }
@@ -48,11 +52,11 @@ public class CreateBoardUi {
         try {
             serverSocket = new ServerSocket(portNumber);
             while (true) {
-                Socket user = serverSocket.accept(); // 等待客户端连接
-                List<String[]> initShapes = ((Painting)wb.getWhiteBoardPanel()).getShapes();
+                Socket user = serverSocket.accept();
+                //List<String[]> initShapes = ((Painting)wb.getWhiteBoardPanel()).getShapes();
                 // create a thread handle the user socket
-                Connection sc1 = new Connection(user, initShapes, wb, "request");
-                Connection sc2 = new Connection(user, initShapes, wb, "respond");
+                Connection sc1 = new Connection(user,  wb, "request");
+                Connection sc2 = new Connection(user,  wb, "respond");
                 message.getUsers().add(sc1);
                 sc1.start();
                 sc2.start();

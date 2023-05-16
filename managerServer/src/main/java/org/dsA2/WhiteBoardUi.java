@@ -13,6 +13,7 @@ import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 
 /**
@@ -55,9 +56,12 @@ public class WhiteBoardUi {
     private int endX;
     private int endY;
     private JFileChooser fileChooser = new JFileChooser();
-    private List<String[]> shapes = new ArrayList<>();
+    private List<String[]> shapes = new CopyOnWriteArrayList<>();
+    private List<String[]> chatting = new CopyOnWriteArrayList<>();
     private String username;
     private int userId;
+
+    private Users users;
 
 
     public WhiteBoardUi(String username, int userId,Messaging message) {
@@ -65,6 +69,7 @@ public class WhiteBoardUi {
         this.userId = userId;
         this.message = message;
         initBoard();
+        users = new Users(usersList);
         penButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -243,22 +248,19 @@ public class WhiteBoardUi {
         removeUser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-              //shanchuyige
-                DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
-                int selectedIndex = usersList.getSelectedIndex();
-                if (selectedIndex != -1) {
-                    model.remove(selectedIndex);
-                }
+                users.removeSelectedUser();
+                updateUsersToAll();
             }
         });
         send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String info = inputMessageTextField.getText();
-                chatTextArea.append(info);
-                JSONObject json = new JSONObject();
-                json.put("chat", info);
-                message.getRequests().add(json);
+                chatTextArea.append(info+ "\n");
+                JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
+                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+                updateChattingToAll(info+ "\n");
+                //message.getRequests().add(json);
             }
         });
     }
@@ -294,6 +296,7 @@ public class WhiteBoardUi {
         //tianjia1yige1
         DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
         model.addElement("Manager - "+username+" (id:"+userId+")");
+        model.addElement("Manager");
     }
 
     private void createUIComponents() {
@@ -352,7 +355,6 @@ public class WhiteBoardUi {
         }
     }
 
-
     public void openFile(){
         fileChooser.setDialogTitle("Open the file!");
         fileChooser.setAcceptAllFileFilterUsed(true);
@@ -377,15 +379,6 @@ public class WhiteBoardUi {
         }
     }
 
-
-    public JPanel getWhiteBoardPanel() {
-        return whiteBoardPanel;
-    }
-
-    public JList<String> getUsersList() {
-        return usersList;
-    }
-
     public void updateShapesToAll (){
         JSONObject json = new JSONObject();
         json.put("requestType", "shapes");
@@ -399,18 +392,54 @@ public class WhiteBoardUi {
         message.broadcastMessage(respond);
     }
 
-    public JSONObject requestJoin(JSONObject request) {
+    public void updateUsersToAll (){
         JSONObject json = new JSONObject();
+        String[] s = users.getUserArrayList();
+        json.put("requestType", "userList");
+        json.put("data", s);
+        message.broadcastMessage(json);
+    }
+
+
+    public void updateChattingToAll (String info){
+        JSONObject json = new JSONObject();
+        json.put("requestType", "chatting");
+        json.put("data", info);
+        message.broadcastMessage(json);
+    }
+
+    public void addChattingInfo (JSONObject respond){
+        String s  = respond.get("data").toString();
+        chatTextArea.append(s+ "\n");
+        message.broadcastMessage(respond);
+    }
+
+
+
+    public void requestJoin(JSONObject request) {
+        JSONObject jsonUserList = new JSONObject();
+        JSONObject jsonJoin = new JSONObject();
         String username = (String) request.get("requestJoinName");
         int userId = (int) request.get("requestJoinId");
         if (JOptionPane.showConfirmDialog(frame,
                 username+"(ID: "+userId+")"+"  want to join?", "Join Request?",
                 JOptionPane.YES_NO_OPTION,
                 JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION){
-            json.put("join", "Ok");
-            json.put("shapes", shapes);
-            return json;
+            jsonJoin.put("requestType", "join");
+            jsonJoin.put("status", "Ok");
+            jsonJoin.put("shapes", shapes);
+            users.addUser(username, String.valueOf(userId));
+            String[] usersArray = users.getUserArrayList();
+            jsonUserList.put("requestType", "userList");
+            jsonUserList.put("data", usersArray);
+            jsonJoin.put("userList", usersArray);
+            message.broadcastMessage(jsonJoin);
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+            message.broadcastMessage(jsonUserList);
         }
-        return json;
     }
 }

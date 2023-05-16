@@ -25,7 +25,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * @Version 1.0
  */
 public class WhiteBoardUi {
-
     private JPanel panelMain;
     private JPanel toolsPanel;
     private JButton lineButton;
@@ -34,7 +33,7 @@ public class WhiteBoardUi {
     private JButton rectangleButton;
     private JButton textButton;
     private JPanel whiteBoardPanel;
-    private JList<String> usersList;
+
     private JPanel usersPanel;
     private JPanel chatPanel;
     private JPanel rightPanel;
@@ -44,6 +43,7 @@ public class WhiteBoardUi {
     private JScrollPane chatPane;
     private JLabel userLabel;
     private JTextArea chatTextArea;
+    private JScrollPane userPane;
     private JButton penButton;
     private JFrame frame;
     private String selectedColor;
@@ -53,19 +53,19 @@ public class WhiteBoardUi {
     private int endX;
     private int endY;
     private List<String[]> shapes = new CopyOnWriteArrayList<>();
-
+    private JList<String> usersList;
     private String username;
     private int userId;
-
     Connection sc1;
+    Users users;
 
 
     public WhiteBoardUi(String username, int userId, Connection sc1) {
         this.username = username;
         this.userId = userId;
         this.sc1 = sc1;
-
         initBoard();
+        users = new Users(usersList);
         penButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -214,14 +214,13 @@ public class WhiteBoardUi {
 
             }
         });
+
         send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String info = inputMessageTextField.getText();
-                chatTextArea.append(info);
-                JSONObject json = new JSONObject();
-                json.put("chat", info);
-                //message.getRequests().add(json);
+                //chatTextArea.append(info);
+                updateChattingToAll(info+ "\n");
             }
         });
     }
@@ -255,8 +254,8 @@ public class WhiteBoardUi {
         //only can select single
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         //tianjia1yige1
-        DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
-        model.addElement("User - "+username+" (id:"+userId+")");
+//        DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
+//        model.addElement("Manager - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {
@@ -264,24 +263,40 @@ public class WhiteBoardUi {
         whiteBoardPanel = new Painting();
     }
 
-    public JPanel getWhiteBoardPanel() {
-        return whiteBoardPanel;
-    }
-
-    public JList<String> getUsersList() {
-        return usersList;
-    }
 
     public void updateShapesToAll (){
         JSONObject json = new JSONObject();
         json.put("data", shapes);
         json.put("requestType", "shapes");
         sc1.addRequest(json);
-        //message.broadcastMessage(json);
     }
 
-    public void setShapes(List<String[]> shapes) {
+    public void updateChattingToAll (String info){
+        JSONObject json = new JSONObject();
+        json.put("data", info);
+        json.put("requestType", "chatting");
+        sc1.addRequest(json);
+    }
+
+    public void setInitShapes(List<String[]> shapes) {
         this.shapes = shapes;
         ((Painting)whiteBoardPanel).setShapes(shapes);
     }
+
+    public void setUpdatedShapes(JSONObject respond) {
+        shapes = JSON.parseObject(respond.get("data").toString(), new TypeReference<List<String[]>>(){});
+        ((Painting)whiteBoardPanel).setShapes(shapes);
+    }
+
+    public void setUpdatedUsers(JSONObject respond) {
+        String[] s  = JSON.parseObject(respond.get("data").toString(), new TypeReference<String[]>(){});
+        users.setUserList(s);
+    }
+
+    public void setUpdatedChatting(JSONObject respond) {
+        String s  = respond.get("data").toString();
+        chatTextArea.append(s+ "\n");
+    }
+
+
 }

@@ -25,10 +25,13 @@ public class JoinBoardUi {
 
     private static Boolean joinRequest = false;
     private static List<String[]> shapes = new ArrayList<>();
+    static String[] userArrayList;
     static WhiteBoardUi  wb;
     static Connection sc1;
+    static Connection sc2;
 
     public static void main(String[] args) {
+        //login window
         int userId = generateId();
         Object[] inputs = {"Please enter your name：", new JTextField(),"Your User Id is :",new JLabel(String.valueOf(userId))};
         int option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
@@ -39,47 +42,50 @@ public class JoinBoardUi {
             option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
             username = ((JTextField) inputs[1]).getText();
         }
-        //create a thread for chatting and user list
-//        Messaging message = new Messaging();
-//        message.start();
 
-        Socket user = new Socket();
+        // create connection threads(request listener thread and respond listener)
+        checkAndCreateConnection(args[0],args[1], username, userId);
 
-        checkAndCreateConnection(args[0],args[1], username, userId,  user);
-
-        synchronized (user){
+        // waiting manager approved
+        while(true){
             try {
-                user.wait();
+                Thread.sleep(1000);
+                if(joinRequest){
+                    break;
+                }
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            //Create WhiteBoardUi
-            if(joinRequest){
-                wb = new WhiteBoardUi(username, userId, sc1);
-                wb.setShapes(shapes);
-            }
         }
+        //create white board UI
+        wb = new WhiteBoardUi(username, userId, sc1);
+        //sc1.setWhiteBoardUi(wb);
+        sc2.setWhiteBoardUi(wb);
+        wb.setInitShapes(shapes);
+        wb.users.setUserList(userArrayList);
     }
 
-    public static void checkAndCreateConnection(String hostIp, String port, String username, int userId, Socket user){
-        //Create new thread for network
+    public static void checkAndCreateConnection(String hostIp, String port, String username, int userId){
+
         int portNumber = Integer.parseInt(port);
         int timeout = 2000;
         try {
 
             InetAddress ipAddress = InetAddress.getByName(hostIp);
             SocketAddress address = new InetSocketAddress(ipAddress, portNumber);
-            //Socket user = new Socket();
+            Socket user = new Socket();
             user.connect(address, timeout);
-
-
-            //List<String[]> initShapes = ((Painting)wb.getWhiteBoardPanel()).getShapes();
-            // create a thread handle the user socket
+            // create threads handle the user socket
             sc1 = new Connection(user, username, userId, "request");
-            Connection sc2 = new Connection(user, username, userId, "respond");
+            sc2 = new Connection(user, username, userId, "respond");
             sc1.start();
             sc2.start();
-
+            //send join request
+            JSONObject json = new JSONObject();
+            json.put("requestType", "join");
+            json.put("requestJoinName", username);
+            json.put("requestJoinId", userId);
+            sc1.addRequest(json);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -92,14 +98,11 @@ public class JoinBoardUi {
         return Math.abs(hashCode % 10000);
     }
 
-    public static void setJoinRequest(JSONObject respond){
-       // String answer = (String) ;
-        if(respond.get("join") !=null){
-            joinRequest = true;
+    public static void setInitJoin(JSONObject respond){
+        if(respond.get("status") !=null){
             shapes = JSON.parseObject(respond.get("shapes").toString(), new TypeReference<List<String[]>>(){});
-        }else if(respond.get("data") != null){
-            shapes = JSON.parseObject(respond.get("data").toString(), new TypeReference<List<String[]>>(){});
-            wb.setShapes(shapes);
+            userArrayList = JSON.parseObject(respond.get("userList").toString(), new TypeReference<String[]>(){});
+            joinRequest = true;
         }
     }
 }
