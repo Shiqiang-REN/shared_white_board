@@ -48,17 +48,34 @@ public class Users {
     }
 
 
-    public String removeSelectedUser (){
+    public String removeSelectedUser (String managerId){
         int selectedIndex = usersList.getSelectedIndex();
         String value = model.getElementAt(selectedIndex);
-        if (selectedIndex != -1) {
+        String selectedUserId = getUserID(value);
+
+        boolean ifManager = selectedUserId.equals(managerId);
+
+        if (selectedIndex != -1 && !ifManager) {
             model.remove(selectedIndex);
+            return selectedUserId;
+        }else{
+            return "manager";
         }
-        return value;
+
     }
 
 
     public void addUser (String username, String userId){
         model.addElement("User - "+username+" (id:"+userId+")");
+    }
+
+    public String getUserID (String s){
+        int startIndex = s.indexOf("id:") + 3;
+        int endIndex = s.indexOf(")", startIndex);
+        if (startIndex != -1 && endIndex != -1) {
+            return s.substring(startIndex, endIndex);
+        } else {
+            return "error";
+        }
     }
 }

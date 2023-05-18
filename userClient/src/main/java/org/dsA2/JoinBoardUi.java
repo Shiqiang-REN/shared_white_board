@@ -63,6 +63,9 @@ public class JoinBoardUi {
         sc2.setWhiteBoardUi(wb);
         wb.setInitShapes(shapes);
         wb.users.setUserList(userArrayList);
+        JSONObject json = new JSONObject();
+        json.put("requestType", "newUser");
+        sc1.addRequest(json);
     }
 
     public static void checkAndCreateConnection(String hostIp, String port, String username, int userId){
@@ -86,6 +89,9 @@ public class JoinBoardUi {
             json.put("requestJoinName", username);
             json.put("requestJoinId", userId);
             sc1.addRequest(json);
+        }catch (ConnectException e) {
+            JOptionPane.showMessageDialog(null,"The whiteboard is not created!\nor\nCheck the port number your inputted!");
+            System.exit(0);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

@@ -250,9 +250,14 @@ public class WhiteBoardUi {
         removeUser.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String removedUser = users.removeSelectedUser();
-                updateUsersToAll();
-                message.closeConnectionByID(removedUser);
+                String user = users.removeSelectedUser(String.valueOf(userId));
+                if(user.equals("manager")){
+                    JOptionPane.showMessageDialog(panelMain,"Can not remove your self! Try close the board to leave!" );
+                }else{
+                    updateUsersToAll();
+                    message.closeConnectionByID(user);
+                }
+
             }
         });
         send.addActionListener(new ActionListener() {
@@ -282,6 +287,11 @@ public class WhiteBoardUi {
                         "Are you sure you want to close this window?", "Close Window?",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+
+                    JSONObject json = new JSONObject();
+                    json.put("requestType", "serverClosed");
+                    message.broadcastMessage(json);
+                    System.exit(0);
                     System.exit(0);
                 }
             }
@@ -438,15 +448,15 @@ public class WhiteBoardUi {
             jsonUserList.put("data", usersArray);
             jsonJoin.put("userList", usersArray);
             message.broadcastMessage(jsonJoin);
-            try {
-                Thread.sleep(5000);
-            } catch (InterruptedException e) {
-                throw new RuntimeException(e);
-            }
-            message.broadcastMessage(jsonUserList);
+//            try {
+//                Thread.sleep(1000);
+//            } catch (InterruptedException e) {
+//                throw new RuntimeException(e);
+//            }
+            //message.broadcastMessage(jsonUserList);
             message.getClients().put(userId, socket);
         }else{
-            System.out.println(socket);
+            //System.out.println(socket);
             message.closeConnection(socket);
         }
     }

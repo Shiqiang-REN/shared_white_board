@@ -29,6 +29,8 @@ public class Connection extends Thread{
 
     WhiteBoardUi wb;
 
+    Boolean connectionStatus = false;
+
 
     public Connection(Socket user, String username, int userId, String connectionType) {
         this.socket = user;
@@ -59,6 +61,7 @@ public class Connection extends Thread{
                         if (respondType != null) {
                             if (respondType.equals("join")) {
                                 setInitJoin(receivingInfo);
+                                connectionStatus = true;
                             } else if (respondType.equals("shapes")) {
                                 //update board
                                 wb.setUpdatedShapes(receivingInfo);
@@ -66,6 +69,8 @@ public class Connection extends Thread{
                                 wb.setUpdatedUsers(receivingInfo);
                             }else if (respondType.equals("chatting")) {
                                 wb.setUpdatedChatting(receivingInfo);
+                            } else if (respondType.equals("serverClosed")) {
+                                connectionStatus = false;
                             }
                         }
                     }
@@ -75,7 +80,13 @@ public class Connection extends Thread{
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } finally {
-            wb.kickOutPanel();
+            if(connectionStatus){
+                wb.kickOutPanel();
+            }else{
+                //add a joinboard mesage window to notify user and then exit(do it later)
+                System.exit(0);
+            }
+
         }
     }
 

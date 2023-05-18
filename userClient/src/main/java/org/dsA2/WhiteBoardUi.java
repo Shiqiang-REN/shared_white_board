@@ -305,12 +305,14 @@ public class WhiteBoardUi {
     }
 
     public void kickOutPanel() {
-        if (JOptionPane.showConfirmDialog(frame,
-                "Are you sure you want to close this window?", "Close Window?",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-            System.exit(0);
-        }
-    }
 
+        JOptionPane.showMessageDialog(panelMain,"You has been kicked out!");
+        System.exit(0);
+//        if (JOptionPane.showConfirmDialog(frame,
+//                "You has been kicked out?", "Close Window?",
+//                JOptionPane.YES_NO_OPTION,
+//                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
+//            System.exit(0);
+//        }
+    }
 }

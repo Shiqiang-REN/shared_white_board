@@ -78,8 +78,7 @@ public class Messaging extends Thread{
 
 
     //根据userId 找到对应socket 然后关闭
-    public void closeConnectionByID (String userID){
-        String id = getUserID(userID);
+    public void closeConnectionByID (String id){
         Socket socket = null;
         for (String key : clients.keySet()) {
             if(Objects.equals(key, id)){

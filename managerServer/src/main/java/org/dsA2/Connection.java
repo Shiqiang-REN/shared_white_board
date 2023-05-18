@@ -58,8 +58,10 @@ public class Connection extends Thread{
                             wb.addChattingInfo(receivingInfo);
                         } else if (respondType.equals("shapes")) {
                             wb.updateShapesToAll2(receivingInfo);
+                        } else if (respondType.equals("newUser")) {
+                            wb.updateUsersToAll();
                         } else if (respondType.equals("close")) {
-                            return;
+                            wb.userOffline(socket);
                         } else {
                             System.out.println("Request type can not be identified!");
                         }
@@ -68,9 +70,10 @@ public class Connection extends Thread{
                 socket.close();
             }
         } catch (IOException e) {
-            if(connectionStatus){
-                wb.userOffline(socket);
-            }
+            System.out.println(e.getMessage());
+//            if(connectionStatus){
+//                wb.userOffline(socket);
+//            }
         }
     }
 
