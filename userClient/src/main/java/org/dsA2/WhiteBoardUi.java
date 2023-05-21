@@ -231,11 +231,11 @@ public class WhiteBoardUi {
                 }
             }
         });
+        frame.setTitle("User - "+username+" (id:"+userId+")");
         selectedColor = "#000000";
         chatTextArea.setEditable(false);
         //only can select single
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        userLabel.setText("User - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {

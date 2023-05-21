@@ -285,6 +285,7 @@ public class WhiteBoardUi {
                 }
             }
         });
+        frame.setTitle("Manager - "+username+" (id:"+userId+")");
 
         //manager features
         fileChooser.setAcceptAllFileFilterUsed(false);
@@ -298,7 +299,7 @@ public class WhiteBoardUi {
         //add manager to list
         DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
         model.addElement("Manager - "+username+" (id:"+userId+")");
-        userLabel.setText("Manager - "+username+" (id:"+userId+")");
+        //userLabel.setText("Manager - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {
