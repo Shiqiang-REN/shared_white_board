@@ -76,17 +76,14 @@ public class Connection extends Thread{
                     }
                 }
             }
-
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } finally {
             if(connectionStatus){
                 wb.kickOutPanel();
             }else{
-                //add a joinboard mesage window to notify user and then exit(do it later)
-                System.exit(0);
+                wb.serverClosed();
             }
-
         }
     }
 

@@ -21,7 +21,6 @@ public class Users {
         model = (DefaultListModel<String>) usersList.getModel();
     }
 
-
     public String[] getUserArrayList (){
         String[] elements = new String[model.getSize()];
         for (int i = 0; i < model.getSize(); i++) {
@@ -43,11 +42,6 @@ public class Users {
         return element;
     }
 
-    public void setUserList (String[] userArrayList){
-        usersList.setListData(userArrayList);
-    }
-
-
     public String removeSelectedUser (String managerId){
         int selectedIndex = usersList.getSelectedIndex();
         String value = model.getElementAt(selectedIndex);
@@ -63,7 +57,6 @@ public class Users {
         }
 
     }
-
 
     public void addUser (String username, String userId){
         model.addElement("User - "+username+" (id:"+userId+")");

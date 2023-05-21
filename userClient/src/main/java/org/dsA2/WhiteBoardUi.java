@@ -4,14 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
 import com.alibaba.fastjson2.JSONObject;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.filechooser.FileNameExtensionFilter;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -153,7 +148,7 @@ public class WhiteBoardUi {
                         ((Painting)whiteBoardPanel).setShapes(shapes);
                         updateShapesToAll();
                         break;
-                    case "oval":
+                    case "oval", "rectangle":
                         shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
@@ -164,17 +159,6 @@ public class WhiteBoardUi {
                         ((Painting)whiteBoardPanel).setShapes(shapes);
                         updateShapesToAll();
                         //Math.abs((startY- startX)/2)
-                        break;
-                    case "rectangle":
-                        shapes.add(new String[]{
-                                toolType,
-                                selectedColor,
-                                String.valueOf(startX),
-                                String.valueOf(startY),
-                                String.valueOf(Math.abs(endX-startX)),
-                                String.valueOf(Math.abs(endY- startY))});
-                        ((Painting)whiteBoardPanel).setShapes(shapes);
-                        updateShapesToAll();
                         break;
                     case "text":
                         String text = JOptionPane.showInputDialog("Please input the text!");
@@ -247,19 +231,10 @@ public class WhiteBoardUi {
                 }
             }
         });
-
-        //manager features
-        //removeUser.setVisible(false);
-        //filesComboBox.setVisible(false);
-
         selectedColor = "#000000";
         chatTextArea.setEditable(false);
-
         //only can select single
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        //tianjia1yige1
-//        DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
-//        model.addElement("Manager - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {
@@ -305,14 +280,12 @@ public class WhiteBoardUi {
     }
 
     public void kickOutPanel() {
-
         JOptionPane.showMessageDialog(panelMain,"You has been kicked out!");
         System.exit(0);
-//        if (JOptionPane.showConfirmDialog(frame,
-//                "You has been kicked out?", "Close Window?",
-//                JOptionPane.YES_NO_OPTION,
-//                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-//            System.exit(0);
-//        }
+    }
+
+    public void serverClosed(){
+        JOptionPane.showMessageDialog(panelMain,"The Manager has closed the white board!");
+        System.exit(0);
     }
 }

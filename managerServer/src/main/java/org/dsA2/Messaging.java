@@ -47,11 +47,6 @@ public class Messaging extends Thread{
             user.addRequest(json);
         }
     }
-
-    public LinkedBlockingQueue<JSONObject> getRequests() {
-        return requests;
-    }
-
     public List<Connection> getUsers() {
         return users;
     }
@@ -64,8 +59,7 @@ public class Messaging extends Thread{
         return clients;
     }
 
-    //根据socket 关闭connection
-
+    //according to socket, close connection
     public void closeConnection (Socket socket){
         for (Connection key : userConnections.keySet()) {
             Socket value = userConnections.get(key);
@@ -75,9 +69,7 @@ public class Messaging extends Thread{
         }
     }
 
-
-
-    //根据userId 找到对应socket 然后关闭
+    //according to userId, find the socket and then close
     public void closeConnectionByID (String id){
         Socket socket = null;
         for (String key : clients.keySet()) {

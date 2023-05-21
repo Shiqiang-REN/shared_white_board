@@ -1,11 +1,8 @@
 package org.dsA2;
 
-import com.alibaba.fastjson2.JSONObject;
-
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,7 +22,6 @@ public class Painting extends JPanel {
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
         graphics = g;
-
         for (String[] shape : shapes) {
             switch (shape[0]) {
                 case "line" -> drawLine(shape[1], shape[2], shape[3], shape[4], shape[5]);
@@ -35,19 +31,8 @@ public class Painting extends JPanel {
                 case "text" -> drawString(shape[1], shape[2], shape[3], shape[4]);
                 case "pen" -> drawLine(shape[1], shape[2], shape[3], shape[4], shape[5]);
             }
-
-            //System.out.println(hobbyArray[0]);
-            //String jsonStr = JSON.toJSONString(hobbies);
-            //List<String[]> hobbies = JSON.parseObject(jsonStr, new TypeReference<List<String[]>>(){});
         }
     }
-
-    public void addPaintingShape(String[] s) {
-        shapes.add(s);
-        //System.out.println(Arrays.toString(s));
-        repaint();
-    }
-
 
     public void drawLine(String color, String startX, String startY, String endX, String endY){
         Color newColor = Color.decode(color);
@@ -98,15 +83,9 @@ public class Painting extends JPanel {
                 Integer.parseInt(startY));
     }
 
-
-    public List<String[]> getShapes() {
-        return shapes;
-    }
-
     public void setShapes(List<String[]> shapes) {
         this.shapes = shapes;
         repaint();
     }
-
 
 }

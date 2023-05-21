@@ -71,16 +71,12 @@ public class Connection extends Thread{
             }
         } catch (IOException e) {
             System.out.println(e.getMessage());
-//            if(connectionStatus){
-//                wb.userOffline(socket);
-//            }
         }
     }
 
     public void addRequest(JSONObject json){
         requests.add(json);
     }
-
 
     public void close (){
         connectionStatus = false;

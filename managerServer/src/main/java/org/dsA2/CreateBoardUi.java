@@ -4,9 +4,6 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 /**
@@ -39,7 +36,6 @@ public class CreateBoardUi {
             username = ((JTextField) inputs[1]).getText();
         }
 
-
         //create a thread for chatting and user list
         Messaging message = new Messaging();
         message.start();
@@ -60,7 +56,6 @@ public class CreateBoardUi {
             serverSocket = new ServerSocket(portNumber);
             while (true) {
                 Socket user = serverSocket.accept();
-                //List<String[]> initShapes = ((Painting)wb.getWhiteBoardPanel()).getShapes();
                 // create a thread handle the user socket
                 Connection sc1 = new Connection(user,  wb, "request");
                 Connection sc2 = new Connection(user,  wb, "respond");

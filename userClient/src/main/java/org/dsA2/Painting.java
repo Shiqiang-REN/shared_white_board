@@ -32,19 +32,8 @@ public class Painting extends JPanel {
                 case "text" -> drawString(shape[1], shape[2], shape[3], shape[4]);
                 case "pen" -> drawLine(shape[1], shape[2], shape[3], shape[4], shape[5]);
             }
-
-            //System.out.println(hobbyArray[0]);
-            //String jsonStr = JSON.toJSONString(hobbies);
-            //List<String[]> hobbies = JSON.parseObject(jsonStr, new TypeReference<List<String[]>>(){});
         }
     }
-
-    public void addPaintingShape(String[] s) {
-        shapes.add(s);
-        //System.out.println(Arrays.toString(s));
-        repaint();
-    }
-
 
     public void drawLine(String color, String startX, String startY, String endX, String endY){
         Color newColor = Color.decode(color);

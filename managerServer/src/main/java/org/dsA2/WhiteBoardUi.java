@@ -2,6 +2,7 @@ package org.dsA2;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.TypeReference;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson2.JSONObject;
 
 import javax.imageio.ImageIO;
@@ -57,14 +58,14 @@ public class WhiteBoardUi {
     private int endX;
     private int endY;
     private JFileChooser fileChooser = new JFileChooser();
+    private FileNameExtensionFilter wbFilter = new FileNameExtensionFilter("White Board Files (*.whiteBoard)", "whiteBoard");
+    private FileNameExtensionFilter textFilter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
+    private FileNameExtensionFilter pngFilter = new FileNameExtensionFilter("PNG Files (*.png)", "png");
     private List<String[]> shapes = new CopyOnWriteArrayList<>();
     private List<String[]> chatting = new CopyOnWriteArrayList<>();
     private String username;
     private int userId;
-
     private Users users;
-
-
 
     public WhiteBoardUi(String username, int userId,Messaging message) {
         this.username = username;
@@ -159,7 +160,7 @@ public class WhiteBoardUi {
                         ((Painting)whiteBoardPanel).setShapes(shapes);
                         updateShapesToAll();
                         break;
-                    case "oval":
+                    case "oval", "rectangle":
                         shapes.add(new String[]{
                                 toolType,
                                 selectedColor,
@@ -170,17 +171,6 @@ public class WhiteBoardUi {
                         ((Painting)whiteBoardPanel).setShapes(shapes);
                         updateShapesToAll();
                         //Math.abs((startY- startX)/2)
-                        break;
-                    case "rectangle":
-                        shapes.add(new String[]{
-                                toolType,
-                                selectedColor,
-                                String.valueOf(startX),
-                                String.valueOf(startY),
-                                String.valueOf(Math.abs(endX-startX)),
-                                String.valueOf(Math.abs(endY- startY))});
-                        ((Painting)whiteBoardPanel).setShapes(shapes);
-                        updateShapesToAll();
                         break;
                     case "text":
                         String text = JOptionPane.showInputDialog("Please input the text!");
@@ -233,8 +223,8 @@ public class WhiteBoardUi {
                         updateShapesToAll();
                     }
                     case "Open" -> openFile();
-                    case "Save" -> saveFile("text");
-                    case "Save As" -> saveFile("pic");
+                    case "Save" -> saveFile("save");
+                    case "Save As" -> saveFile("saveAs");
                     case "Close" -> {
                         if (JOptionPane.showConfirmDialog(frame,
                                 "Are you sure you want to close?", "Close Window?",
@@ -252,12 +242,11 @@ public class WhiteBoardUi {
             public void actionPerformed(ActionEvent e) {
                 String user = users.removeSelectedUser(String.valueOf(userId));
                 if(user.equals("manager")){
-                    JOptionPane.showMessageDialog(panelMain,"Can not remove your self! Try close the board to leave!" );
+                    JOptionPane.showMessageDialog(panelMain,"Can not remove yourself! Try close the board to leave!" );
                 }else{
                     updateUsersToAll();
                     message.closeConnectionByID(user);
                 }
-
             }
         });
         send.addActionListener(new ActionListener() {
@@ -268,7 +257,6 @@ public class WhiteBoardUi {
                 JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
                 verticalScrollBar.setValue(verticalScrollBar.getMaximum());
                 updateChattingToAll(info+"\n");
-                //message.getRequests().add(json);
             }
         });
     }
@@ -287,29 +275,26 @@ public class WhiteBoardUi {
                         "Are you sure you want to close this window?", "Close Window?",
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-
                     JSONObject json = new JSONObject();
                     json.put("requestType", "serverClosed");
                     message.broadcastMessage(json);
-                    System.exit(0);
                     System.exit(0);
                 }
             }
         });
 
         //manager features
-        //removeUser.setVisible(false);
-        //filesComboBox.setVisible(false);
+        fileChooser.setAcceptAllFileFilterUsed(false);
+        fileChooser.setCurrentDirectory(new File("."));
 
         selectedColor = "#000000";
         chatTextArea.setEditable(false);
 
         //only can select single
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        //tianjia1yige1
+        //add manager to list
         DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
         model.addElement("Manager - "+username+" (id:"+userId+")");
-        model.addElement("Manager");
     }
 
     private void createUIComponents() {
@@ -319,76 +304,86 @@ public class WhiteBoardUi {
 
     //manager features
     public void saveFile (String type){
-        fileChooser.setDialogTitle("Save File!");
-        fileChooser.setAcceptAllFileFilterUsed(false);
-
-        FileNameExtensionFilter txtFilter = new FileNameExtensionFilter("Text Files (*.txt)", "txt");
-        FileNameExtensionFilter pngFilter = new FileNameExtensionFilter("Png Files (*.csv)", "png");
-
-        fileChooser.addChoosableFileFilter(txtFilter);
-        fileChooser.addChoosableFileFilter(pngFilter);
-
-        fileChooser.setFileFilter(txtFilter);
-
-        fileChooser.setCurrentDirectory(new File("."));
-        int fileSelection = fileChooser.showSaveDialog(panelMain);
-
-
-        if (fileSelection == JFileChooser.APPROVE_OPTION) {
-            File selectedFile = fileChooser.getSelectedFile();
-            String fileType = ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
+        if(type.equals("save")){
+            String jsonStr = JSON.toJSONString(shapes);
+            BufferedWriter writer = null;
             try {
-                if(type.equals("text")){
+                writer = new BufferedWriter(new FileWriter("saved.whiteBoard"));
+                writer.write(jsonStr);
+                writer.close();
+                JOptionPane.showMessageDialog(panelMain,"File saved successfully!");
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
 
+        } else if (type.equals("saveAs")) {
+            fileChooser.setDialogTitle("Save the file!");
+            fileChooser.addChoosableFileFilter(wbFilter);
+            fileChooser.addChoosableFileFilter(textFilter);
+            fileChooser.addChoosableFileFilter(pngFilter);
+            String fileName;
+
+            int fileSelection = fileChooser.showSaveDialog(panelMain);
+            if (fileSelection == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                String fileType = ((FileNameExtensionFilter) fileChooser.getFileFilter()).getExtensions()[0];
+                fileName = selectedFile.getAbsolutePath();
+                fileName = fileName +"."+ fileType;
+                if(fileType.equals("txt") ||fileType.equals("whiteBoard") ){
                     String jsonStr = JSON.toJSONString(shapes);
-                    String fileName = selectedFile.getAbsolutePath();
-                    fileName = fileName +"."+ fileType;
+                    BufferedWriter writer = null;
+                    try {
+                        writer = new BufferedWriter(new FileWriter(fileName));
+                        writer.write(jsonStr);
+                        writer.close();
+                        JOptionPane.showMessageDialog(panelMain,"File saved successfully!");
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
 
-                    BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
-                    writer.write(jsonStr);
-                    writer.close();
-                    System.out.println("File saved successfully.");
-                } else if (type.equals("pic")) {
+                } else if (fileType.equals("png")) {
                     BufferedImage image = new BufferedImage(whiteBoardPanel.getWidth(), whiteBoardPanel.getHeight(), BufferedImage.TYPE_INT_ARGB);
                     Graphics2D g2d = image.createGraphics();
                     whiteBoardPanel.paint(g2d);
                     g2d.dispose();
-                    String fileName = selectedFile.getAbsolutePath();
+                    fileName = selectedFile.getAbsolutePath();
                     fileName = fileName +"."+ fileType;
                     try {
                         ImageIO.write(image, fileType, new File(fileName));
+                        JOptionPane.showMessageDialog(panelMain,"File saved successfully!");
+
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
                 }
-
-            } catch (IOException e) {
-                e.printStackTrace();
             }
         }
     }
 
     public void openFile(){
         fileChooser.setDialogTitle("Open the file!");
-        fileChooser.setAcceptAllFileFilterUsed(true);
-        fileChooser.setCurrentDirectory(new File("."));
+        fileChooser.removeChoosableFileFilter(pngFilter);
+        fileChooser.addChoosableFileFilter(textFilter);
+        fileChooser.addChoosableFileFilter(wbFilter);
+
         int fileSelection = fileChooser.showOpenDialog(panelMain);
         if (fileSelection == JFileChooser.APPROVE_OPTION) {
             File selectedFile = fileChooser.getSelectedFile();
-
             StringBuilder jsonStr = new StringBuilder();
             try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     jsonStr.append(line);
                 }
+                String s = jsonStr.toString();
+                shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
+                ((Painting)whiteBoardPanel).setShapes(shapes);
+                updateShapesToAll();
+            } catch (JSONException ex) {
+                System.out.println("file error!");
             } catch (Exception ex) {
-                ex.printStackTrace();
+                System.out.println(ex.getMessage());
             }
-            String s = jsonStr.toString();
-            shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
-            ((Painting)whiteBoardPanel).setShapes(shapes);
-            updateShapesToAll();
         }
     }
 
@@ -448,15 +443,8 @@ public class WhiteBoardUi {
             jsonUserList.put("data", usersArray);
             jsonJoin.put("userList", usersArray);
             message.broadcastMessage(jsonJoin);
-//            try {
-//                Thread.sleep(1000);
-//            } catch (InterruptedException e) {
-//                throw new RuntimeException(e);
-//            }
-            //message.broadcastMessage(jsonUserList);
             message.getClients().put(userId, socket);
         }else{
-            //System.out.println(socket);
             message.closeConnection(socket);
         }
     }
