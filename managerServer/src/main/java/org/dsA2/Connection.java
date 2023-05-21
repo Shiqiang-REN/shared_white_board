@@ -69,8 +69,13 @@ public class Connection extends Thread{
                 }
                 socket.close();
             }
+
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            try {
+                socket.close();
+            } catch (IOException ex) {
+                System.out.println(e.getMessage());
+            }
         }
     }
 
@@ -81,5 +86,4 @@ public class Connection extends Thread{
     public void close (){
         connectionStatus = false;
     }
-
 }

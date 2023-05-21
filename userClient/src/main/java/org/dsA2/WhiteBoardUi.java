@@ -235,6 +235,7 @@ public class WhiteBoardUi {
         chatTextArea.setEditable(false);
         //only can select single
         usersList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        userLabel.setText("User - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {

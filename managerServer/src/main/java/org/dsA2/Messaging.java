@@ -65,6 +65,7 @@ public class Messaging extends Thread{
             Socket value = userConnections.get(key);
             if(value == socket){
                 key.close();
+                removeSocket(socket);
             }
         }
     }
@@ -78,22 +79,21 @@ public class Messaging extends Thread{
                 closeConnection(socket);
             }
         }
-        removeSocket(socket);
     }
 
-    public String getUserID (String s){
-        int startIndex = s.indexOf("id:") + 3;
-        int endIndex = s.indexOf(")", startIndex);
-        if (startIndex != -1 && endIndex != -1) {
-            return s.substring(startIndex, endIndex);
-        } else {
-           return "error";
+    public String getUserIDBySocket (Socket socket){
+        String userId = null;
+        for (String key : clients.keySet()) {
+            Socket value = clients.get(key);
+            if(value == socket){
+                userId = key;
+            }
         }
+        return userId;
     }
 
 
     public String removeSocket(Socket socket){
-
         String userId = null;
         for (String key : clients.keySet()) {
             Socket value = clients.get(key);

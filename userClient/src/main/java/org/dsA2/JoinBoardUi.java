@@ -54,7 +54,7 @@ public class JoinBoardUi {
                     break;
                 }
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                System.out.println(e.getMessage());
             }
         }
         //create white board UI
@@ -73,7 +73,6 @@ public class JoinBoardUi {
         int portNumber = Integer.parseInt(port);
         int timeout = 2000;
         try {
-
             InetAddress ipAddress = InetAddress.getByName(hostIp);
             SocketAddress address = new InetSocketAddress(ipAddress, portNumber);
             Socket user = new Socket();
@@ -93,7 +92,7 @@ public class JoinBoardUi {
             JOptionPane.showMessageDialog(null,"The whiteboard is not created!\nor\nCheck the port number your inputted!");
             System.exit(0);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
     }
 
@@ -109,6 +108,9 @@ public class JoinBoardUi {
             shapes = JSON.parseObject(respond.get("shapes").toString(), new TypeReference<List<String[]>>(){});
             userArrayList = JSON.parseObject(respond.get("userList").toString(), new TypeReference<String[]>(){});
             joinRequest = true;
+        }else{
+            JOptionPane.showMessageDialog(null,"The manager refused your request!");
+            System.exit(0);
         }
     }
 }

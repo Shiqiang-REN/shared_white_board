@@ -245,6 +245,7 @@ public class WhiteBoardUi {
                     JOptionPane.showMessageDialog(panelMain,"Can not remove yourself! Try close the board to leave!" );
                 }else{
                     updateUsersToAll();
+                    kickOutUserByID(user);
                     message.closeConnectionByID(user);
                 }
             }
@@ -260,6 +261,8 @@ public class WhiteBoardUi {
             }
         });
     }
+
+
 
     public void initBoard() {
         frame = new JFrame();
@@ -295,6 +298,7 @@ public class WhiteBoardUi {
         //add manager to list
         DefaultListModel<String> model = (DefaultListModel<String>) usersList.getModel();
         model.addElement("Manager - "+username+" (id:"+userId+")");
+        userLabel.setText("Manager - "+username+" (id:"+userId+")");
     }
 
     private void createUIComponents() {
@@ -351,7 +355,6 @@ public class WhiteBoardUi {
                     try {
                         ImageIO.write(image, fileType, new File(fileName));
                         JOptionPane.showMessageDialog(panelMain,"File saved successfully!");
-
                     } catch (IOException ex) {
                         ex.printStackTrace();
                     }
@@ -408,6 +411,14 @@ public class WhiteBoardUi {
         message.broadcastMessage(json);
     }
 
+    private void kickOutUserByID(String userID) {
+        JSONObject json = new JSONObject();
+        String[] s = users.getUserArrayList();
+        json.put("requestType", "kickOut");
+        json.put("data", userID);
+        message.broadcastMessage(json);
+    }
+
 
     public void updateChattingToAll (String info){
         JSONObject json = new JSONObject();
@@ -450,13 +461,10 @@ public class WhiteBoardUi {
     }
 
     public void userOffline( Socket socket) {
-        String userID = message.removeSocket(socket);
+        String userID = message.getUserIDBySocket(socket);
         String user = users.getUserByIDAndRemove(userID);
+        updateUsersToAll();
         message.closeConnection(socket);
-        if (JOptionPane.showConfirmDialog(frame,
-                user+" has leave the chat", "Close Window?",
-                JOptionPane.YES_NO_OPTION,
-                JOptionPane.QUESTION_MESSAGE) == JOptionPane.YES_OPTION) {
-        }
+        JOptionPane.showMessageDialog(panelMain,user+" has leaved!");
     }
 }

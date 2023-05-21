@@ -71,6 +71,11 @@ public class Connection extends Thread{
                                 wb.setUpdatedChatting(receivingInfo);
                             } else if (respondType.equals("serverClosed")) {
                                 connectionStatus = false;
+                            } else if (respondType.equals("kickOut")) {
+                                String kickOutUserId = (String) receivingInfo.get("data");
+                                if(kickOutUserId.equals( String.valueOf(userId))){
+                                    wb.kickOutPanel();
+                                }
                             }
                         }
                     }
@@ -79,10 +84,15 @@ public class Connection extends Thread{
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } finally {
-            if(connectionStatus){
-                wb.kickOutPanel();
-            }else{
+            if(wb!=null){
                 wb.serverClosed();
+            }else{
+                setInitJoin(new JSONObject());
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
             }
         }
     }
