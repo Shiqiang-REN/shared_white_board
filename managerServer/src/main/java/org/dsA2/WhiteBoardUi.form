@@ -176,7 +176,7 @@
                   </grid>
                 </constraints>
                 <properties>
-                  <text value="input message"/>
+                  <text value=""/>
                 </properties>
               </component>
               <component id="8dfc" class="javax.swing.JButton" binding="send">
