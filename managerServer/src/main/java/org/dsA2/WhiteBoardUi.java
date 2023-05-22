@@ -241,23 +241,30 @@ public class WhiteBoardUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String user = users.removeSelectedUser(String.valueOf(userId));
-                if(user.equals("manager")){
-                    JOptionPane.showMessageDialog(panelMain,"Can not remove yourself! Try close the board to leave!" );
+                if(user.equals("manager")) {
+                    JOptionPane.showMessageDialog(panelMain, "Can not remove yourself! Try close the board to leave!");
+                } else if (user.equals("error")) {
+                    JOptionPane.showMessageDialog(panelMain, "Please select a person that you want to remove!");
                 }else{
-                    updateUsersToAll();
-                    kickOutUserByID(user);
-                    message.closeConnectionByID(user);
+                        updateUsersToAll();
+                        kickOutUserByID(user);
+                        message.closeConnectionByID(user);
+                    }
                 }
-            }
         });
         send.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String info = inputMessageTextField.getText();
-                chatTextArea.append("\n"+info+"\n");
-                JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
-                verticalScrollBar.setValue(verticalScrollBar.getMaximum());
-                updateChattingToAll(info+"\n");
+                if(info.equals("")){
+                    JOptionPane.showMessageDialog(panelMain, "Please input the message!");
+                }else {
+                    chatTextArea.append(username+": "+info+"\n");
+                    JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
+                    verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+                    updateChattingToAll(username+": "+info+"\n");
+                    inputMessageTextField.setText("");
+                }
             }
         });
     }
@@ -449,6 +456,7 @@ public class WhiteBoardUi {
             jsonJoin.put("requestType", "join");
             jsonJoin.put("status", "Ok");
             jsonJoin.put("shapes", shapes);
+            //update user list
             users.addUser(username, userId);
             String[] usersArray = users.getUserArrayList();
             jsonUserList.put("requestType", "userList");
@@ -457,6 +465,10 @@ public class WhiteBoardUi {
             message.broadcastMessage(jsonJoin);
             message.getClients().put(userId, socket);
         }else{
+            JSONObject jsonRefused = new JSONObject();
+            jsonRefused.put("requestType", "refused");
+            jsonRefused.put("data", userId);
+            message.broadcastMessage(jsonRefused);
             message.closeConnection(socket);
         }
     }
@@ -465,7 +477,20 @@ public class WhiteBoardUi {
         String userID = message.getUserIDBySocket(socket);
         String user = users.getUserByIDAndRemove(userID);
         updateUsersToAll();
-        message.closeConnection(socket);
         JOptionPane.showMessageDialog(panelMain,user+" has leaved!");
+        message.closeConnection(socket);
+    }
+
+    public void userForceQuit( Socket socket) {
+        String userID = message.getUserIDBySocket(socket);
+        System.out.println(userID);
+        String user = users.getUserByIDAndRemove(userID);
+        updateUsersToAll();
+        JOptionPane.showMessageDialog(panelMain,user+" has leaved!");
+        removeSocket(socket);
+    }
+
+    public void removeSocket (Socket socket){
+        message.removeSocket(socket);
     }
 }

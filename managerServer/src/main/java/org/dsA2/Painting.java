@@ -15,7 +15,7 @@ import java.util.List;
  */
 public class Painting extends JPanel {
 
-    List<String[]> shapes = new ArrayList<>();
+    private List<String[]> shapes = new ArrayList<>();
     private Graphics graphics;
 
     @Override

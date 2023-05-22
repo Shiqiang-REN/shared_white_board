@@ -51,7 +51,7 @@ public class WhiteBoardUi {
     private JList<String> usersList;
     private String username;
     private int userId;
-    Connection sc1;
+    private Connection sc1;
     Users users;
 
 
@@ -203,8 +203,14 @@ public class WhiteBoardUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String info = inputMessageTextField.getText();
-                //chatTextArea.append(info);
-                updateChattingToAll(info+"\n");
+                if(info.equals("")){
+                    JOptionPane.showMessageDialog(panelMain, "Please input the message!");
+                }else {
+                    JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
+                    verticalScrollBar.setValue(verticalScrollBar.getMaximum());
+                    updateChattingToAll(username+": "+info+"\n");
+                    inputMessageTextField.setText("");
+                }
             }
         });
     }

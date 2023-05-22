@@ -13,8 +13,8 @@ import javax.swing.*;
  */
 public class Users {
 
-    JList<String>  usersList;
-    DefaultListModel<String> model;
+    private  JList<String>  usersList;
+    private DefaultListModel<String> model;
 
     public Users(JList<String>  usersList){
         this.usersList= usersList;

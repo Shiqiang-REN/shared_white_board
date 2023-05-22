@@ -18,12 +18,12 @@ import java.util.concurrent.LinkedBlockingQueue;
  */
 public class Connection extends Thread{
 
-    LinkedBlockingQueue<JSONObject> requests = new LinkedBlockingQueue<>();
-    Socket socket;
-    WhiteBoardUi wb;
-    String connectionType;
+    private LinkedBlockingQueue<JSONObject> requests = new LinkedBlockingQueue<>();
+    private Socket socket;
+    private WhiteBoardUi wb;
+    private String connectionType;
 
-    Boolean connectionStatus = true;
+    private Boolean connectionStatus = true;
 
     public Connection(Socket socket, WhiteBoardUi wb, String connectionType) {
         this.socket = socket;
@@ -45,7 +45,6 @@ public class Connection extends Thread{
                         writer.flush();
                     }
                 }
-                socket.close();
             }else if(connectionType.equals("respond")){
                 String jsonString;
                 while(connectionStatus && (jsonString = reader.readLine()) != null){
@@ -67,7 +66,6 @@ public class Connection extends Thread{
                         }
                     }
                 }
-                socket.close();
             }
 
         } catch (IOException e) {
@@ -75,6 +73,18 @@ public class Connection extends Thread{
                 socket.close();
             } catch (IOException ex) {
                 System.out.println(e.getMessage());
+            }
+        }finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.out.println(e.getMessage());
+            }
+            //client force quit
+            if(connectionStatus && connectionType.equals("respond")){
+                wb.userForceQuit(socket);
+            }else{
+                wb.removeSocket(socket);
             }
         }
     }

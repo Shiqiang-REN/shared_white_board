@@ -25,12 +25,8 @@ public class Connection extends Thread{
 
     LinkedBlockingQueue<JSONObject> requests = new LinkedBlockingQueue<>();
     final Socket socket;
-    String connectionType;
-
-    WhiteBoardUi wb;
-
-    Boolean connectionStatus = false;
-
+    private String connectionType;
+    private WhiteBoardUi wb;
 
     public Connection(Socket user, String username, int userId, String connectionType) {
         this.socket = user;
@@ -61,7 +57,6 @@ public class Connection extends Thread{
                         if (respondType != null) {
                             if (respondType.equals("join")) {
                                 setInitJoin(receivingInfo);
-                                connectionStatus = true;
                             } else if (respondType.equals("shapes")) {
                                 //update board
                                 wb.setUpdatedShapes(receivingInfo);
@@ -70,11 +65,17 @@ public class Connection extends Thread{
                             }else if (respondType.equals("chatting")) {
                                 wb.setUpdatedChatting(receivingInfo);
                             } else if (respondType.equals("serverClosed")) {
-                                connectionStatus = false;
+                                wb.serverClosed();
                             } else if (respondType.equals("kickOut")) {
                                 String kickOutUserId = (String) receivingInfo.get("data");
                                 if(kickOutUserId.equals( String.valueOf(userId))){
                                     wb.kickOutPanel();
+                                }
+                            } else if (respondType.equals("refused")) {
+                                System.out.println(receivingInfo);
+                                String kickOutUserId = (String) receivingInfo.get("data");
+                                if(kickOutUserId.equals( String.valueOf(userId))){
+                                    setInitJoin(new JSONObject());
                                 }
                             }
                         }
@@ -84,12 +85,10 @@ public class Connection extends Thread{
         } catch (IOException e) {
             System.out.println(e.getMessage());
         } finally {
-            if(wb!=null){
-                wb.serverClosed();
-            }else{
-                setInitJoin(new JSONObject());
-            }
             try {
+                if(wb!=null){
+                    wb.serverClosed();
+                }
                 socket.close();
             } catch (IOException e) {
                 System.out.println(e.getMessage());

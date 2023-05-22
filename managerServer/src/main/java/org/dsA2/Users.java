@@ -13,8 +13,8 @@ import javax.swing.*;
  */
 public class Users {
 
-    JList<String>  usersList;
-    DefaultListModel<String> model;
+    private JList<String>  usersList;
+    private DefaultListModel<String> model;
 
     public Users(JList<String>  usersList){
         this.usersList= usersList;
@@ -44,18 +44,19 @@ public class Users {
 
     public String removeSelectedUser (String managerId){
         int selectedIndex = usersList.getSelectedIndex();
-        String value = model.getElementAt(selectedIndex);
-        String selectedUserId = getUserID(value);
+        if (selectedIndex != -1) {
+            String value = model.getElementAt(selectedIndex);
+            String selectedUserId = getUserID(value);
 
-        boolean ifManager = selectedUserId.equals(managerId);
-
-        if (selectedIndex != -1 && !ifManager) {
-            model.remove(selectedIndex);
-            return selectedUserId;
+            if(selectedUserId.equals(managerId)){
+                return "manager";
+            }else{
+                model.remove(selectedIndex);
+                return selectedUserId;
+            }
         }else{
-            return "manager";
+            return "error";
         }
-
     }
 
     public void addUser (String username, String userId){

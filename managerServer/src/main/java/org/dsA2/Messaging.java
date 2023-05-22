@@ -61,12 +61,17 @@ public class Messaging extends Thread{
 
     //according to socket, close connection
     public void closeConnection (Socket socket){
-        for (Connection key : userConnections.keySet()) {
-            Socket value = userConnections.get(key);
-            if(value == socket){
-                key.close();
-                removeSocket(socket);
+        try {
+            //ensure the latest info has been sent and then close the connection
+            Thread.sleep(1000);
+            for (Connection key : userConnections.keySet()) {
+                Socket value = userConnections.get(key);
+                if(value == socket){
+                    key.close();
+                }
             }
+        } catch (InterruptedException e) {
+            System.out.println(e.getMessage());
         }
     }
 
