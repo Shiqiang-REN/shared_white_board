@@ -2,6 +2,7 @@ package org.dsA2;
 
 import javax.swing.*;
 import java.io.IOException;
+import java.net.BindException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.UUID;
@@ -21,6 +22,13 @@ public class CreateBoardUi {
 
 
     public static void main(String[] args) {
+        String port = null;
+        try{
+            port = args[0];
+        }catch(ArrayIndexOutOfBoundsException e){
+            JOptionPane.showMessageDialog(null,"\"The number of parameters is incorrect!\"Please check the command again please!" );
+            System.exit(0);
+        }
         //login window
         int userId = generateId();
         Object[] inputs = {"Please enter your name：", new JTextField(),"Your User Id is :",new JLabel(String.valueOf(userId))};
@@ -44,15 +52,15 @@ public class CreateBoardUi {
         WhiteBoardUi wb = new WhiteBoardUi(username, userId, message);
 
         // create connection threads(request listener thread and respond listener)
-        checkAndCreateConnection(args[0], message, wb);
+        checkAndCreateConnection(port, message, wb);
 
     }
 
     public static void checkAndCreateConnection(String port, Messaging message, WhiteBoardUi wb){
         //Create new thread for network
-        int portNumber = Integer.parseInt(port);
         ServerSocket serverSocket = null;
         try {
+            int portNumber = Integer.parseInt(port);
             serverSocket = new ServerSocket(portNumber);
             while (true) {
                 Socket user = serverSocket.accept();
@@ -66,8 +74,11 @@ public class CreateBoardUi {
                 sc1.start();
                 sc2.start();
             }
+        } catch (BindException err) {
+            JOptionPane.showMessageDialog(null,"Port number already be used!" );
+            System.exit(0);
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
         }
     }
 

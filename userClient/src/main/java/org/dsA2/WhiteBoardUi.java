@@ -281,7 +281,7 @@ public class WhiteBoardUi {
 
     public void setUpdatedChatting(JSONObject respond) {
         String s  = respond.get("data").toString();
-        chatTextArea.append(s+"\n");
+        chatTextArea.append(s);
         JScrollBar verticalScrollBar = chatPane.getVerticalScrollBar();
         verticalScrollBar.setValue(verticalScrollBar.getMaximum());
     }

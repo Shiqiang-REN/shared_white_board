@@ -31,10 +31,22 @@ public class JoinBoardUi {
     static Connection sc2;
 
     public static void main(String[] args) {
+        String serverIPAddress = null;
+        String port = null;
+        try{
+            serverIPAddress = args[0];
+            port = args[1];
+        }catch(ArrayIndexOutOfBoundsException e){
+            System.out.println("The number of parameters is incorrect, please re-enter!");
+        }
         //login window
         int userId = generateId();
         Object[] inputs = {"Please enter your name：", new JTextField(),"Your User Id is :",new JLabel(String.valueOf(userId))};
         int option = JOptionPane.showConfirmDialog(null, inputs, "Login", JOptionPane.OK_CANCEL_OPTION);
+
+        if(option == JOptionPane.CANCEL_OPTION){
+            System.exit(0);
+        }
 
         String username = ((JTextField) inputs[1]).getText();
         while (username.isEmpty() && option == JOptionPane.OK_OPTION) {
@@ -44,7 +56,7 @@ public class JoinBoardUi {
         }
 
         // create connection threads(request listener thread and respond listener)
-        checkAndCreateConnection(args[0],args[1], username, userId);
+        checkAndCreateConnection(serverIPAddress,port, username, userId);
 
         // waiting manager approved
         while(true){
@@ -69,10 +81,9 @@ public class JoinBoardUi {
     }
 
     public static void checkAndCreateConnection(String hostIp, String port, String username, int userId){
-
-        int portNumber = Integer.parseInt(port);
-        int timeout = 2000;
         try {
+            int portNumber = Integer.parseInt(port);
+            int timeout = 2000;
             InetAddress ipAddress = InetAddress.getByName(hostIp);
             SocketAddress address = new InetSocketAddress(ipAddress, portNumber);
             Socket user = new Socket();
@@ -88,11 +99,18 @@ public class JoinBoardUi {
             json.put("requestJoinName", username);
             json.put("requestJoinId", userId);
             sc1.addRequest(json);
+        } catch(NumberFormatException err) {
+            JOptionPane.showMessageDialog(null,"The port number is not correct!" );
+            System.exit(0);
+        } catch(UnknownHostException|NoRouteToHostException|SocketTimeoutException err) {
+            JOptionPane.showMessageDialog(null,"The IP address is not correct!" );
+            System.exit(0);
         }catch (ConnectException e) {
             JOptionPane.showMessageDialog(null,"The whiteboard is not created!\nor\nCheck the port number your inputted!");
             System.exit(0);
         } catch (IOException e) {
             System.out.println(e.getMessage());
+            System.exit(0);
         }
     }
 
