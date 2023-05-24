@@ -32,13 +32,20 @@ public class JoinBoardUi {
 
     public static void main(String[] args) {
         String serverIPAddress = null;
-        String port = null;
+        int port = 0;
         try{
+            if (args.length>2){
+                JOptionPane.showMessageDialog(null,"\"The command parameters is incorrect!\"Please check the command again please!" );
+                System.exit(0);
+            }
             serverIPAddress = args[0];
-            port = args[1];
-        }catch(ArrayIndexOutOfBoundsException e){
-            System.out.println("The number of parameters is incorrect, please re-enter!");
+            port = Integer.parseInt(args[1]);
+        }catch(ArrayIndexOutOfBoundsException | NumberFormatException e  ){
+            JOptionPane.showMessageDialog(null,"\"The command of parameters is incorrect!\"Please check the command again please!" );
+            System.exit(0);
         }
+
+
         //login window
         int userId = generateId();
         Object[] inputs = {"Please enter your name：", new JTextField(),"Your User Id is :",new JLabel(String.valueOf(userId))};
@@ -80,12 +87,11 @@ public class JoinBoardUi {
         sc1.addRequest(json);
     }
 
-    public static void checkAndCreateConnection(String hostIp, String port, String username, int userId){
+    public static void checkAndCreateConnection(String hostIp, int port, String username, int userId){
         try {
-            int portNumber = Integer.parseInt(port);
             int timeout = 2000;
             InetAddress ipAddress = InetAddress.getByName(hostIp);
-            SocketAddress address = new InetSocketAddress(ipAddress, portNumber);
+            SocketAddress address = new InetSocketAddress(ipAddress, port);
             Socket user = new Socket();
             user.connect(address, timeout);
             // create threads handle the user socket

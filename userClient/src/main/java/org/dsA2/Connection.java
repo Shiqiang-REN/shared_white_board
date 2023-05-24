@@ -12,7 +12,7 @@ import static org.dsA2.JoinBoardUi.setInitJoin;
 /**
  * ClassName: ServerConnection
  * Package: org.dsA2
- * Description: handling Server network connection
+ * Description: handling client network connection
  *
  * @Author Shiqiang Ren
  * @Create 15/5/2023 11:00
@@ -72,7 +72,6 @@ public class Connection extends Thread{
                                     wb.kickOutPanel();
                                 }
                             } else if (respondType.equals("refused")) {
-                                System.out.println(receivingInfo);
                                 String kickOutUserId = (String) receivingInfo.get("data");
                                 if(kickOutUserId.equals( String.valueOf(userId))){
                                     setInitJoin(new JSONObject());

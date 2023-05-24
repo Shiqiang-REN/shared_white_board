@@ -18,15 +18,16 @@ import java.util.UUID;
  */
 
 public class CreateBoardUi {
-
-
-
     public static void main(String[] args) {
-        String port = null;
-        try{
-            port = args[0];
-        }catch(ArrayIndexOutOfBoundsException e){
-            JOptionPane.showMessageDialog(null,"\"The number of parameters is incorrect!\"Please check the command again please!" );
+        int port = 0;
+        try{ 
+            if (args.length>1){
+                JOptionPane.showMessageDialog(null,"\"The command parameters is incorrect!\"Please check the command again please!" );
+                System.exit(0);
+            }
+            port = Integer.parseInt(args[0]);
+        }catch(ArrayIndexOutOfBoundsException | NumberFormatException e  ){
+            JOptionPane.showMessageDialog(null,"\"The command of parameters is incorrect!\"Please check the command again please!" );
             System.exit(0);
         }
         //login window
@@ -56,12 +57,11 @@ public class CreateBoardUi {
 
     }
 
-    public static void checkAndCreateConnection(String port, Messaging message, WhiteBoardUi wb){
+    public static void checkAndCreateConnection(int port, Messaging message, WhiteBoardUi wb){
         //Create new thread for network
         ServerSocket serverSocket = null;
         try {
-            int portNumber = Integer.parseInt(port);
-            serverSocket = new ServerSocket(portNumber);
+            serverSocket = new ServerSocket(port);
             while (true) {
                 Socket user = serverSocket.accept();
                 // create a thread handle the user socket

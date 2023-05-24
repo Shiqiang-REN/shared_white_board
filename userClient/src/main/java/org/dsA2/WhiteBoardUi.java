@@ -107,7 +107,9 @@ public class WhiteBoardUi {
             @Override
             public void actionPerformed(ActionEvent e) {
                 Color color = JColorChooser.showDialog(panelMain, "Choose Color", Color.black);
-                selectedColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+                if(color!= null){
+                    selectedColor = String.format("#%02x%02x%02x", color.getRed(), color.getGreen(), color.getBlue());
+                }
             }
         });
 
@@ -162,13 +164,15 @@ public class WhiteBoardUi {
                         break;
                     case "text":
                         String text = JOptionPane.showInputDialog("Please input the text!");
-                        shapes.add(new String[]{
-                                toolType,
-                                selectedColor,
-                                String.valueOf(startX),
-                                String.valueOf(startY), text});
-                        ((Painting)whiteBoardPanel).setShapes(shapes);
-                        updateShapesToAll();
+                        if (text != null) {
+                            shapes.add(new String[]{
+                                    toolType,
+                                    selectedColor,
+                                    String.valueOf(startX),
+                                    String.valueOf(startY), text});
+                            ((Painting)whiteBoardPanel).setShapes(shapes);
+                            updateShapesToAll();
+                        }
                         break;
                     default:
                         break;

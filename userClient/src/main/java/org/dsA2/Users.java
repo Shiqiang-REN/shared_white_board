@@ -5,7 +5,6 @@ import javax.swing.*;
 /**
  * ClassName: Users
  * Package: org.dsA2
- * Description:
  *
  * @Author Shiqiang Ren
  * @Create 16/5/2023 09:46

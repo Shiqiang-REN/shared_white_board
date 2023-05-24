@@ -8,7 +8,7 @@ import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * ClassName: ServerConnection
+ * ClassName: Connection
  * Package: org.dsA2
  * Description: handling Server network connection
  *
