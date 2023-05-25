@@ -334,11 +334,12 @@ public class WhiteBoardUi {
 
         } else if (type.equals("saveAs")) {
             fileChooser.setDialogTitle("Save the file!");
-            fileChooser.addChoosableFileFilter(wbFilter);
-            fileChooser.addChoosableFileFilter(textFilter);
+            fileChooser.resetChoosableFileFilters();
             fileChooser.addChoosableFileFilter(pngFilter);
-            String fileName;
+            fileChooser.addChoosableFileFilter(textFilter);
+            fileChooser.addChoosableFileFilter(wbFilter);
 
+            String fileName;
             int fileSelection = fileChooser.showSaveDialog(panelMain);
             if (fileSelection == JFileChooser.APPROVE_OPTION) {
                 File selectedFile = fileChooser.getSelectedFile();
@@ -377,9 +378,9 @@ public class WhiteBoardUi {
 
     public void openFile(){
         fileChooser.setDialogTitle("Open the file!");
-        fileChooser.removeChoosableFileFilter(pngFilter);
-        fileChooser.addChoosableFileFilter(textFilter);
+        fileChooser.resetChoosableFileFilters();
         fileChooser.addChoosableFileFilter(wbFilter);
+        fileChooser.addChoosableFileFilter(textFilter);
 
         int fileSelection = fileChooser.showOpenDialog(panelMain);
         if (fileSelection == JFileChooser.APPROVE_OPTION) {
@@ -391,11 +392,17 @@ public class WhiteBoardUi {
                     jsonStr.append(line);
                 }
                 String s = jsonStr.toString();
-                shapes = JSON.parseObject(s, new TypeReference<List<String[]>>(){});
-                ((Painting)whiteBoardPanel).setShapes(shapes);
+                List<String[]> fileShapes = JSON.parseObject(s, new TypeReference<List<String[]>>() {
+                });
+                if(fileShapes!=null){
+                    shapes = fileShapes;
+                    ((Painting)whiteBoardPanel).setShapes(shapes);
+                }else{
+                    JOptionPane.showMessageDialog(panelMain,"The file is damaged and cannot be opened!");
+                }
                 updateShapesToAll();
             } catch (JSONException ex) {
-                System.out.println("file error!");
+                JOptionPane.showMessageDialog(panelMain,"The file is damaged and cannot be opened!");
             } catch (Exception ex) {
                 System.out.println(ex.getMessage());
             }
